@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="4dp" >
+
+    <TextView
+        android:id="@+id/textViewSiteName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:drawableLeft="@drawable/wp"
+        android:drawablePadding="4dp"
+        android:text="wordpress.org"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="0" >
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_today"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/textViewTodayBlocked"
+                style="@style/tableRowItem"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/spam_count_label" />
+
+            <TextView
+                android:id="@+id/textViewTodayAllowed"
+                style="@style/tableRowItem"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/allowed_count_label" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_yesterday"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/textViewYesterdayBlocked"
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/spam_count_label" />
+
+            <TextView
+                android:id="@+id/textViewYesterdayAllowed"
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/allowed_count_label" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_week"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/textViewWeekBlocked"
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/spam_count_label" />
+
+            <TextView
+                android:id="@+id/textViewWeekAllowed"
+                style="@style/tableRowItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/allowed_count_label" />
+        </TableRow>
+    </TableLayout>
+
+</LinearLayout>
