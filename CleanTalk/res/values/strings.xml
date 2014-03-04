@@ -6,7 +6,10 @@
     <string name="label_today">Today</string>
     <string name="label_yesterday">Yesterday</string>
     <string name="label_week">Week</string>
-    <string name="status_approved">Разрешено</string>
-    <string name="status_forbidden">Запрещено</string>
+    <string name="status_approved">Allows</string>
+    <string name="status_forbidden">Forbidden</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_visit_site">Visit cleantalk.org</string>
+    <string name="action_logout">Logout</string>
 
 </resources>

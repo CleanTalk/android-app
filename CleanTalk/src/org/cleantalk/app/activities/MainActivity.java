@@ -11,14 +11,17 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -26,15 +29,23 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends ListActivity {
+public class MainActivity extends ActionBarActivity implements OnItemClickListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -46,6 +57,8 @@ public class MainActivity extends ListActivity {
 
 	private GoogleCloudMessaging gcm;
 	private String registrationId_;
+
+	private boolean refreshing = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +82,10 @@ public class MainActivity extends ListActivity {
 
 		List<Site> dummySites = new ArrayList<Site>();
 		initDummySites(dummySites);
-		setListAdapter(new SitesAdapter(this, dummySites));
+
+		ListView listView = ((ListView) findViewById(android.R.id.list));
+		listView.setAdapter(new SitesAdapter(this, dummySites));
+		listView.setOnItemClickListener(this);
 	}
 
 	private void initDummySites(List<Site> dummySites) {
@@ -97,13 +113,6 @@ public class MainActivity extends ListActivity {
 				finish();
 			}
 		});
-	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		Intent intent = new Intent(this, SiteActivity.class);
-		startActivity(intent);
 	}
 
 	private class SitesAdapter extends BaseAdapter {
@@ -308,6 +317,54 @@ public class MainActivity extends ListActivity {
 	 * demo since the device sends upstream messages to a server that echoes back the message using the 'from' address in the message.
 	 */
 	private void sendRegistrationIdToBackend() {
-		//TODO Send data to service
+		// TODO Send data to service
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		Intent intent = new Intent(this, SiteActivity.class);
+		startActivity(intent);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_refresh:
+			//Drawable a = item.getIcon();
+			//View b = MenuItemCompat.getActionView(item);
+			if (!refreshing) {
+				refreshing = true;
+//				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
+//				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
+//				rotation.setRepeatCount(Animation.INFINITE);
+//				iv.startAnimation(rotation);
+//				MenuItemCompat.setActionView(item, iv);
+//				MenuItemCompat.getActionView(item).startAnimation(rotation);
+				MenuItemCompat.setActionView(item, R.layout.action_refresh);
+			} else {
+				refreshing = false;
+//				MenuItemCompat.getActionView(item).clearAnimation();
+				MenuItemCompat.setActionView(item, null);
+			}
+			return true;
+		case R.id.action_visit_site:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://cleantalk.org")));
+			return true;
+		case R.id.action_logout:
+			startActivity(new Intent(MainActivity.this, LoginActivity.class));
+			finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 }

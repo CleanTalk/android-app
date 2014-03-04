@@ -41,7 +41,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="5dp" >
+        android:padding="5dp"
+        android:visibility="gone" >
 
         <Button
             android:id="@+id/buttonRefresh"
@@ -67,27 +68,21 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:text="cleantalk.org" />
-        <TextView
-                android:id="@+id/textViewSitelink"
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text=" | " />
+
             <TextView
                 android:id="@+id/textViewLogout"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:gravity="left"
                 android:clickable="true"
+                android:gravity="left"
                 android:text="Logout" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/textViewRegId"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-
     </LinearLayout>
 
 </LinearLayout>

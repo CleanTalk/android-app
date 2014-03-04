@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Clean Talk</string>
+    <string name="action_settings">Настройки</string>
+    <string name="label_today">Сегодня</string>
+    <string name="label_yesterday">Вчера</string>
+    <string name="label_week">Неделя</string>
+    <string name="status_approved">Разрешено</string>
+    <string name="status_forbidden">Запрещено</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_visit_site">Перейти на cleantalk.org</string>
+    <string name="action_logout">Выйти</string>
+
+</resources>
