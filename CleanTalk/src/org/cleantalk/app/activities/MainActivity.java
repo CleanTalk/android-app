@@ -10,8 +10,13 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -23,6 +28,24 @@ public class MainActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		final TextView link = (TextView) findViewById(R.id.textViewSitelink);
+		link.setText(Html
+				.fromHtml("<a href=\"http://cleantalk.org\">cleantalk.org</a>"));
+		link.setMovementMethod(LinkMovementMethod.getInstance());
+
+		final TextView logoutTextview = (TextView) findViewById(R.id.textViewLogout);
+		SpannableString string = new SpannableString("Logout");
+		string.setSpan(new UnderlineSpan(), 0, string.length(), 0);
+		logoutTextview.setText(string);
+		logoutTextview.setTextColor(getResources().getColor(R.color.text_color));
+		logoutTextview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(MainActivity.this, LoginActivity.class));
+				finish();
+			}
+		});
 
 		List<Site> dummySites = new ArrayList<Site>();
 		dummySites.add(new Site("Site 1", 0, 1, 42, 123, 123, 312, 12));
@@ -40,7 +63,7 @@ public class MainActivity extends ListActivity {
 		Intent intent = new Intent(this, SiteActivity.class);
 		startActivity(intent);
 	}
-	
+
 	private class SitesAdapter extends BaseAdapter {
 
 		private final Context context_;
@@ -58,16 +81,24 @@ public class MainActivity extends ListActivity {
 			ViewHolder holder; // to reference the child views for later actions
 
 			if (v == null) {
-				v = LayoutInflater.from(context_).inflate(R.layout.list_row_sites, null);
+				v = LayoutInflater.from(context_).inflate(
+						R.layout.list_row_sites, null);
 				// cache view fields into the holder
 				holder = new ViewHolder();
-				holder.textViewSiteName = (TextView) v.findViewById(R.id.textViewSiteName);
-				holder.textViewTodayBlocked = (TextView) v.findViewById(R.id.textViewTodayBlocked);
-				holder.textViewTodayAllowed = (TextView) v.findViewById(R.id.textViewTodayAllowed);
-				holder.textViewYesterdayBlocked = (TextView) v.findViewById(R.id.textViewYesterdayBlocked);
-				holder.textViewYesterdayAllowed = (TextView) v.findViewById(R.id.textViewYesterdayAllowed);
-				holder.textViewWeekBlocked = (TextView) v.findViewById(R.id.textViewWeekBlocked);
-				holder.textViewWeekAllowed = (TextView) v.findViewById(R.id.textViewWeekAllowed);
+				holder.textViewSiteName = (TextView) v
+						.findViewById(R.id.textViewSiteName);
+				holder.textViewTodayBlocked = (TextView) v
+						.findViewById(R.id.textViewTodayBlocked);
+				holder.textViewTodayAllowed = (TextView) v
+						.findViewById(R.id.textViewTodayAllowed);
+				holder.textViewYesterdayBlocked = (TextView) v
+						.findViewById(R.id.textViewYesterdayBlocked);
+				holder.textViewYesterdayAllowed = (TextView) v
+						.findViewById(R.id.textViewYesterdayAllowed);
+				holder.textViewWeekBlocked = (TextView) v
+						.findViewById(R.id.textViewWeekBlocked);
+				holder.textViewWeekAllowed = (TextView) v
+						.findViewById(R.id.textViewWeekAllowed);
 				// associate the holder with the view for later lookup
 				v.setTag(holder);
 			} else {
@@ -77,12 +108,18 @@ public class MainActivity extends ListActivity {
 
 			Site site = getItem(position);
 			holder.textViewSiteName.setText(site.getSiteName());
-			holder.textViewTodayAllowed.setText(String.valueOf(site.getTodayAllowed()));
-			holder.textViewTodayBlocked.setText(String.valueOf(site.getTodayBlocked()));
-			holder.textViewWeekAllowed.setText(String.valueOf(site.getWeekAllowed()));
-			holder.textViewWeekBlocked.setText(String.valueOf(site.getWeekBlocked()));
-			holder.textViewYesterdayAllowed.setText(String.valueOf(site.getYesterdayAllowed()));
-			holder.textViewYesterdayBlocked.setText(String.valueOf(site.getYesterdayBlocked()));
+			holder.textViewTodayAllowed.setText(String.valueOf(site
+					.getTodayAllowed()));
+			holder.textViewTodayBlocked.setText(String.valueOf(site
+					.getTodayBlocked()));
+			holder.textViewWeekAllowed.setText(String.valueOf(site
+					.getWeekAllowed()));
+			holder.textViewWeekBlocked.setText(String.valueOf(site
+					.getWeekBlocked()));
+			holder.textViewYesterdayAllowed.setText(String.valueOf(site
+					.getYesterdayAllowed()));
+			holder.textViewYesterdayBlocked.setText(String.valueOf(site
+					.getYesterdayBlocked()));
 
 			return v;
 		}
@@ -113,5 +150,4 @@ public class MainActivity extends ListActivity {
 			return position;
 		}
 	}
-
 }

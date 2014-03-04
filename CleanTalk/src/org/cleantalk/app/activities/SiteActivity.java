@@ -8,11 +8,15 @@ import org.cleantalk.app.model.Request;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -24,14 +28,26 @@ public class SiteActivity extends ListActivity {
 		setContentView(R.layout.activity_site);
 
 		List<Request> dummyRequests = new ArrayList<Request>();
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...</p>"));
+		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
 		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...Again</p>"));
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...</p>"));
+		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...</p>"));
 		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...Again</p>"));
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...</p>"));
+		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
 		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...Again</p>"));
 
 		setListAdapter(new RequestAdapter(this, dummyRequests));
+		
+		final TextView controlPanel = (TextView) findViewById(R.id.textViewControlPanel);
+		SpannableString string = new SpannableString("Control panel");
+		string.setSpan(new UnderlineSpan(), 0, string.length(), 0);
+		controlPanel.setText(string);
+		controlPanel.setTextColor(getResources().getColor(R.color.text_color));
+		controlPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+		});
+		
 	}
 
 	public class RequestAdapter extends BaseAdapter {
@@ -83,7 +99,7 @@ public class SiteActivity extends ListActivity {
 
 			Request request = getItem(position);
 			holder.textViewTime.setText(request.getDatetime());
-			holder.textViewSender.setText(request.getSenderNickname() + "(" + request.getSenderEmail() + ")");
+			holder.textViewSender.setText(request.getSenderNickname() + " (" + request.getSenderEmail() + ")");
 			holder.textViewType.setText(request.getType());
 
 			if (request.isAllow()) {

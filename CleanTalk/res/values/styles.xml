@@ -46,8 +46,6 @@
 
     <style name="tableRowItem">
         <item name="android:layout_margin">5dp</item>
-    </style>
-    <style name="styleName" parent="android:Widget.Holo.Light.TextView">
-        <item name="android:padding">4dp</item>
+        <item name="android:textSize">9pt</item>
     </style>
 </resources>
