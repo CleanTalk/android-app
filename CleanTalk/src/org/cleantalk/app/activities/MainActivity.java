@@ -8,11 +8,13 @@ import org.cleantalk.app.model.Site;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends ListActivity {
@@ -23,13 +25,22 @@ public class MainActivity extends ListActivity {
 		setContentView(R.layout.activity_main);
 
 		List<Site> dummySites = new ArrayList<Site>();
-		dummySites.add(new Site("Site 1", 0, 1, 1, 1, 1, 1, 1));
-		dummySites.add(new Site("Site 2", 0, 1, 1, 1, 1, 1, 1));
+		dummySites.add(new Site("Site 1", 0, 1, 42, 123, 123, 312, 12));
+		dummySites.add(new Site("Site 2", 0, 123, 421, 1, 13, 1, 1));
+		dummySites.add(new Site("Site 3", 0, 123, 1, 1, 1, 1, 1));
+		dummySites.add(new Site("Site 3", 0, 13, 2, 1, 123, 1231, 1));
 		dummySites.add(new Site("Site 3", 0, 1, 1, 1, 1, 1, 1));
 
 		setListAdapter(new SitesAdapter(this, dummySites));
 	}
 
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Intent intent = new Intent(this, SiteActivity.class);
+		startActivity(intent);
+	}
+	
 	private class SitesAdapter extends BaseAdapter {
 
 		private final Context context_;

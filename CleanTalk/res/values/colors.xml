@@ -1,7 +1,7 @@
 <resources>
 
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
+    <color name="text_color">#349ebf</color>
+    <color name="spam_count_label">#f00</color>
+    <color name="allowed_count_label">#0f0</color>
 
 </resources>

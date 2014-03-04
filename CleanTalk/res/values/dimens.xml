@@ -1,7 +1,0 @@
-<resources>
-
-    <color name="text_color">#349ebf</color>
-    <color name="spam_count_label">#f00</color>
-    <color name="allowed_count_label">#0f0</color>
-
-</resources>

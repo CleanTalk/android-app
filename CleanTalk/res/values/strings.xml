@@ -6,5 +6,7 @@
     <string name="label_today">Today</string>
     <string name="label_yesterday">Yesterday</string>
     <string name="label_week">Week</string>
+    <string name="status_approved">Разрешено</string>
+    <string name="status_forbidden">Запрещено</string>
 
 </resources>
