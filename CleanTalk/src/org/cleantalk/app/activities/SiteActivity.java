@@ -9,34 +9,50 @@ import org.cleantalk.app.model.Request;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
-public class SiteActivity extends ListActivity {
+public class SiteActivity extends ActionBarActivity implements OnItemClickListener {
+
+	private boolean refreshing = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_site);
 
-		List<Request> dummyRequests = new ArrayList<Request>();
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
-		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...Again</p>"));
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...</p>"));
-		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...Again</p>"));
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com", "cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
-		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com", "cbowers-test", "Post", "<p>disappointed...Again</p>"));
-
-		setListAdapter(new RequestAdapter(this, dummyRequests));
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setTitle("Wordpress.org");
 		
+		List<Request> dummyRequests = new ArrayList<Request>();
+		initDummyRequests(dummyRequests);
+
+		ListView listView = ((ListView) findViewById(android.R.id.list));
+		listView.setAdapter(new RequestAdapter(this, dummyRequests));
+		listView.setOnItemClickListener(this);
+
 		final TextView controlPanel = (TextView) findViewById(R.id.textViewControlPanel);
 		SpannableString string = new SpannableString("Control panel");
 		string.setSpan(new UnderlineSpan(), 0, string.length(), 0);
@@ -47,7 +63,64 @@ public class SiteActivity extends ListActivity {
 			public void onClick(View v) {
 			}
 		});
-		
+
+	}
+
+	private void initDummyRequests(List<Request> dummyRequests) {
+		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com",
+				"cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
+		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com",
+				"cbowers-test", "Post", "<p>disappointed...Again</p>"));
+		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com",
+				"cbowers-test", "Post", "<p>disappointed...</p>"));
+		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com",
+				"cbowers-test", "Post", "<p>disappointed...Again</p>"));
+		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com",
+				"cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
+		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com",
+				"cbowers-test", "Post", "<p>disappointed...Again</p>"));
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.site, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(final MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_refresh:
+			// Drawable a = item.getIcon();
+			// View b = MenuItemCompat.getActionView(item);
+			if (!refreshing ) {
+				refreshing = true;
+				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
+				iv.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						refreshing = false;
+						MenuItemCompat.getActionView(item).clearAnimation();
+						MenuItemCompat.setActionView(item, null);
+					}
+				});
+				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
+				rotation.setRepeatCount(Animation.INFINITE);
+				iv.startAnimation(rotation);
+				MenuItemCompat.setActionView(item, iv);
+				// MenuItemCompat.getActionView(item).startAnimation(rotation);
+				// MenuItemCompat.setActionView(item, R.layout.action_refresh);
+			}
+			return true;
+		case R.id.action_control_panel:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://cleantalk.org")));
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	public class RequestAdapter extends BaseAdapter {
@@ -125,4 +198,8 @@ public class SiteActivity extends ListActivity {
 
 	}
 
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		// TODO Auto-generated method stub
+	}
 }

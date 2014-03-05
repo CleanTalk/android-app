@@ -335,25 +335,29 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_refresh:
 			//Drawable a = item.getIcon();
 			//View b = MenuItemCompat.getActionView(item);
 			if (!refreshing) {
 				refreshing = true;
-//				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
-//				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
-//				rotation.setRepeatCount(Animation.INFINITE);
-//				iv.startAnimation(rotation);
-//				MenuItemCompat.setActionView(item, iv);
-//				MenuItemCompat.getActionView(item).startAnimation(rotation);
-				MenuItemCompat.setActionView(item, R.layout.action_refresh);
-			} else {
-				refreshing = false;
-//				MenuItemCompat.getActionView(item).clearAnimation();
-				MenuItemCompat.setActionView(item, null);
+				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
+				iv.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						refreshing = false;
+						MenuItemCompat.getActionView(item).clearAnimation();
+						MenuItemCompat.setActionView(item, null);
+					}
+				});
+				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
+				rotation.setRepeatCount(Animation.INFINITE);
+				iv.startAnimation(rotation);
+				MenuItemCompat.setActionView(item, iv);
+				//MenuItemCompat.getActionView(item).startAnimation(rotation);
+				//MenuItemCompat.setActionView(item, R.layout.action_refresh);
 			}
 			return true;
 		case R.id.action_visit_site:

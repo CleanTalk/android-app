@@ -9,6 +9,7 @@
     <string name="status_approved">Allows</string>
     <string name="status_forbidden">Forbidden</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_control_panel">Control panel</string>
     <string name="action_visit_site">Visit cleantalk.org</string>
     <string name="action_logout">Logout</string>
 

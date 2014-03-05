@@ -9,6 +9,7 @@
     <string name="status_approved">Разрешено</string>
     <string name="status_forbidden">Запрещено</string>
     <string name="action_refresh">Обновить</string>
+    <string name="action_control_panel">Панель управления</string>
     <string name="action_visit_site">Перейти на cleantalk.org</string>
     <string name="action_logout">Выйти</string>
 

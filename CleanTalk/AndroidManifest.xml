@@ -27,14 +27,8 @@
 
         <activity
             android:name="org.cleantalk.app.activities.MainActivity"
-            android:theme="@style/AppActionBar"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="@string/app_name"
+            android:theme="@style/AppActionBar" />
         <activity
             android:name="org.cleantalk.app.activities.LoginActivity"
             android:label="@string/title_activity_login"
@@ -47,7 +41,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.cleantalk.app.activities.SiteActivity" />
+        <activity
+            android:name="org.cleantalk.app.activities.SiteActivity"
+            android:parentActivityName="org.cleantalk.app.activities.MainActivity"
+            android:theme="@style/AppActionBar" >
+            <!-- Parent activity meta-data to support API level 7+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.cleantalk.app.activities.MainActivity" />
+        </activity>
 
         <receiver
             android:name=".gcm.GcmBroadcastReceiver"
