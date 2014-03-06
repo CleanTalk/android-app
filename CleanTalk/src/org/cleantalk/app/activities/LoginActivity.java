@@ -6,6 +6,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -14,8 +15,10 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
@@ -108,22 +111,24 @@ public class LoginActivity extends Activity {
 			mPasswordView.setError(getString(R.string.error_field_required));
 			focusView = mPasswordView;
 			cancel = true;
-		} else if (mPassword.length() < 4) {
-			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
-			cancel = true;
 		}
+		// else if (mPassword.length() < 4) {
+		// mPasswordView.setError(getString(R.string.error_invalid_password));
+		// focusView = mPasswordView;
+		// cancel = true;
+		// }
 
 		// Check for a valid email address.
 		if (TextUtils.isEmpty(mEmail)) {
 			mEmailView.setError(getString(R.string.error_field_required));
 			focusView = mEmailView;
 			cancel = true;
-		} else if (!mEmail.contains("@")) {
-			mEmailView.setError(getString(R.string.error_invalid_email));
-			focusView = mEmailView;
-			cancel = true;
 		}
+		// else if (!mEmail.contains("@")) {
+		// mEmailView.setError(getString(R.string.error_invalid_email));
+		// focusView = mEmailView;
+		// cancel = true;
+		// }
 
 		if (cancel) {
 			// There was an error; don't attempt login and focus the first
@@ -134,16 +139,22 @@ public class LoginActivity extends Activity {
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
+			InputMethodManager imm = (InputMethodManager) this.getSystemService(Service.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
 			mAuthTask = new UserLoginTask();
 			mAuthTask.execute((Void) null);
 		}
+	}
+
+	private void showProgress(final boolean show) {
+		((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(show ? 1 : 0);
 	}
 
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress(final boolean show) {
+	private void showProgress1(final boolean show) {
 		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
 		// for very easy animations. If available, use these APIs to fade-in
 		// the progress spinner.

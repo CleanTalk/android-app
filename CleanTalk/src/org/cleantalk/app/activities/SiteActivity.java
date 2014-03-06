@@ -34,6 +34,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 public class SiteActivity extends ActionBarActivity implements OnItemClickListener {
 
@@ -197,6 +198,27 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		// TODO Auto-generated method stub
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(1500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				runOnUiThread(new Runnable() {
+					public void run() {
+						((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(1);
+					}
+				});
+			}
+		}).start();
 	}
 }

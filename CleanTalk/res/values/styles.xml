@@ -1,32 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.    -->
-    <style name="AppBaseTheme" parent="android:Theme.Light">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
-
-    <style name="AppActionBar" parent="@style/Theme.AppCompat.Light">
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
         <item name="android:buttonStyle">@style/ButtonTheme</item>
         <item name="android:editTextStyle">@style/EditTextTheme</item>
+        <item name="actionBarStyle">@style/ActionBarCompat</item>
+        <item name="android:actionBarStyle" tools:ignore="NewApi">@style/ActionBarCompat</item>
     </style>
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <item name="android:buttonStyle">@style/ButtonTheme</item>
-        <item name="android:editTextStyle">@style/EditTextTheme</item>
+
+    <style name="AppTheme.NoTitleBar" parent="@style/AppTheme">
         <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <style name="LoginFormContainer" parent="AppTheme">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">16dp</item>
     </style>
 
     <style name="ButtonTheme" parent="@android:style/Widget.Button">
@@ -50,6 +33,15 @@
     <style name="tableRowItem">
         <item name="android:layout_margin">5dp</item>
         <item name="android:textSize">8pt</item>
+    </style>
+
+    <style name="ActionBarCompat" parent="@style/Widget.AppCompat.Base.ActionBar">
+        <item name="android:titleTextStyle" tools:ignore="NewApi">@style/titleStyle</item>
+        <item name="titleTextStyle">@style/titleStyle</item>
+    </style>
+
+    <style name="titleStyle" parent="@style/TextAppearance.AppCompat.Widget.Base.ActionBar.Title">
+        <item name="android:textColor">@color/text_color</item>
     </style>
 
 </resources>

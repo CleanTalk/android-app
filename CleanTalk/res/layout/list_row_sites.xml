@@ -2,27 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#44b6c9df"
     android:orientation="vertical"
-    android:padding="4dp" >
+    android:paddingBottom="4dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="4dp" >
 
     <TextView
         android:id="@+id/textViewSiteName"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:drawableLeft="@drawable/wp"
         android:drawablePadding="4dp"
-        android:textSize="9pt"
-        android:text="wordpress.org" />
+        android:text="wordpress.org"
+        android:textSize="10pt" />
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="4dp"
         android:stretchColumns="0" >
 
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="#22b6c9df" >
 
             <TextView
                 style="@style/tableRowItem"
@@ -50,7 +56,8 @@
 
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="#2265c1df" >
 
             <TextView
                 style="@style/tableRowItem"
@@ -78,7 +85,8 @@
 
         <TableRow
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:background="#22349cbf" >
 
             <TextView
                 style="@style/tableRowItem"

@@ -27,13 +27,13 @@ public class ProgressBarIndeterminate extends FrameLayout {
 		Animation rotation_cw = new RotateAnimation(0, 1080, Animation.RELATIVE_TO_SELF, .5f, Animation.RELATIVE_TO_SELF, .5f);
 		rotation_cw.setInterpolator(new LinearInterpolator());
 		rotation_cw.setRepeatCount(Animation.INFINITE);
-		rotation_cw.setDuration(2000);
+		rotation_cw.setDuration(2500);
 		mImageInner.startAnimation(rotation_cw);
 
 		Animation rotation_ccw = new RotateAnimation(720, 0, Animation.RELATIVE_TO_SELF, .5f, Animation.RELATIVE_TO_SELF, .5f);
 		rotation_ccw.setInterpolator(new LinearInterpolator());
 		rotation_ccw.setRepeatCount(Animation.INFINITE);
-		rotation_ccw.setDuration(2000);
+		rotation_ccw.setDuration(3000);
 		mImageOuter.startAnimation(rotation_ccw);
 	}
 

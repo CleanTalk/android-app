@@ -12,4 +12,15 @@
     <string name="action_visit_site">Перейти на cleantalk.org</string>
     <string name="action_logout">Выйти</string>
 
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_login_short">Войти</string>
+    <string name="action_forgot_password">Восстановить пароль</string>
+    <string name="login_progress_signing_in">Авторизация&#8230;</string>
+    <string name="error_invalid_email">Не корректный e-mail</string>
+    <string name="error_invalid_password">Пароль слишком короткий</string>
+    <string name="error_incorrect_password">Неверный логин или пароль</string>
+    <string name="error_field_required">Обязательное поле</string>
+
 </resources>
