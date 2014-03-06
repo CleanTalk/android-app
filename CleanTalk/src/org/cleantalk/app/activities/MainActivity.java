@@ -49,7 +49,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
-	private final static String SENDER_ID = "928042402028";
+	private final static String SENDER_ID = "216229348983";
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	private static final String PROPERTY_REG_ID = "PROPERTY_REG_ID";
@@ -64,8 +64,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		initTextViewLinks();
 
 		// Check device for Play Services APK. If check succeeds, proceed with
 		// GCM registration.
@@ -94,25 +92,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		dummySites.add(new Site("Site 3", 0, 123, 1, 1, 1, 1, 1));
 		dummySites.add(new Site("Site 3", 0, 13, 2, 1, 123, 1231, 1));
 		dummySites.add(new Site("Site 3", 0, 1, 1, 1, 1, 1, 1));
-	}
-
-	private void initTextViewLinks() {
-		final TextView link = (TextView) findViewById(R.id.textViewSitelink);
-		link.setText(Html.fromHtml("<a href=\"http://cleantalk.org\">cleantalk.org</a>"));
-		link.setMovementMethod(LinkMovementMethod.getInstance());
-
-		final TextView logoutTextview = (TextView) findViewById(R.id.textViewLogout);
-		SpannableString string = new SpannableString("Logout");
-		string.setSpan(new UnderlineSpan(), 0, string.length(), 0);
-		logoutTextview.setText(string);
-		logoutTextview.setTextColor(getResources().getColor(R.color.text_color));
-		logoutTextview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(MainActivity.this, LoginActivity.class));
-				finish();
-			}
-		});
 	}
 
 	private class SitesAdapter extends BaseAdapter {

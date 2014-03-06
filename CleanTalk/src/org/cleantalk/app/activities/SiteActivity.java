@@ -53,17 +53,6 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 		listView.setAdapter(new RequestAdapter(this, dummyRequests));
 		listView.setOnItemClickListener(this);
 
-		final TextView controlPanel = (TextView) findViewById(R.id.textViewControlPanel);
-		SpannableString string = new SpannableString("Control panel");
-		string.setSpan(new UnderlineSpan(), 0, string.length(), 0);
-		controlPanel.setText(string);
-		controlPanel.setTextColor(getResources().getColor(R.color.text_color));
-		controlPanel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-			}
-		});
-
 	}
 
 	private void initDummyRequests(List<Request> dummyRequests) {
@@ -114,9 +103,6 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 				// MenuItemCompat.getActionView(item).startAnimation(rotation);
 				// MenuItemCompat.setActionView(item, R.layout.action_refresh);
 			}
-			return true;
-		case R.id.action_control_panel:
-			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://cleantalk.org")));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

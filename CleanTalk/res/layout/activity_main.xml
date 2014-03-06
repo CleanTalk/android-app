@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
     tools:context=".MainActivity" >
 
     <LinearLayout
@@ -15,20 +17,20 @@
             android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/textViewTodayBlocked"
-            style="@style/tableRowItem"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="Blocked"
-            android:textColor="@color/spam_count_label" />
-
-        <TextView
             android:id="@+id/textViewTodayAllowed"
             style="@style/tableRowItem"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:text="Allowed"
             android:textColor="@color/allowed_count_label" />
+
+        <TextView
+            android:id="@+id/textViewTodayBlocked"
+            style="@style/tableRowItem"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="Blocked"
+            android:textColor="@color/spam_count_label" />
     </LinearLayout>
 
     <ListView
@@ -36,53 +38,5 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="5dp"
-        android:visibility="gone" >
-
-        <Button
-            android:id="@+id/buttonRefresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingBottom="5dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:paddingTop="5dp"
-            android:text="Refresh" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal"
-            android:padding="5dp" >
-
-            <TextView
-                android:id="@+id/textViewSitelink"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:text="cleantalk.org" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text=" | " />
-
-            <TextView
-                android:id="@+id/textViewLogout"
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:gravity="left"
-                android:text="Logout" />
-        </LinearLayout>
-    </LinearLayout>
 
 </LinearLayout>

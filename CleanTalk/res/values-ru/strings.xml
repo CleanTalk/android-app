@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Clean Talk</string>
     <string name="action_settings">Настройки</string>
     <string name="label_today">Сегодня</string>
     <string name="label_yesterday">Вчера</string>
