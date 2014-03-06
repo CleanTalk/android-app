@@ -1,6 +1,7 @@
 package org.cleantalk.app.activities;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -63,8 +66,9 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_main);
-
+		setProgressBarIndeterminateVisibility(true);
 		// Check device for Play Services APK. If check succeeds, proceed with
 		// GCM registration.
 		if (checkPlayServices()) {
@@ -84,6 +88,17 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		ListView listView = ((ListView) findViewById(android.R.id.list));
 		listView.setAdapter(new SitesAdapter(this, dummySites));
 		listView.setOnItemClickListener(this);
+
+		try {
+			ViewConfiguration config = ViewConfiguration.get(this);
+			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+			if (menuKeyField != null) {
+				menuKeyField.setAccessible(true);
+				menuKeyField.setBoolean(config, false);
+			}
+		} catch (Exception ex) {
+			// Ignore
+		}
 	}
 
 	private void initDummySites(List<Site> dummySites) {
@@ -317,27 +332,27 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_refresh:
-			//Drawable a = item.getIcon();
-			//View b = MenuItemCompat.getActionView(item);
-			if (!refreshing) {
-				refreshing = true;
-				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
-				iv.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						refreshing = false;
-						MenuItemCompat.getActionView(item).clearAnimation();
-						MenuItemCompat.setActionView(item, null);
-					}
-				});
-				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
-				rotation.setRepeatCount(Animation.INFINITE);
-				iv.startAnimation(rotation);
-				MenuItemCompat.setActionView(item, iv);
-				//MenuItemCompat.getActionView(item).startAnimation(rotation);
-				//MenuItemCompat.setActionView(item, R.layout.action_refresh);
-			}
+			// Drawable a = item.getIcon();
+			// View b = MenuItemCompat.getActionView(item);
+//			if (!refreshing) {
+//				refreshing = true;
+//				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
+//				iv.setOnClickListener(new OnClickListener() {
+//					@Override
+//					public void onClick(View v) {
+//						refreshing = false;
+//						MenuItemCompat.getActionView(item).clearAnimation();
+//						MenuItemCompat.setActionView(item, null);
+//					}
+//				});
+//				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
+//				rotation.setRepeatCount(Animation.INFINITE);
+//				iv.startAnimation(rotation);
+//				MenuItemCompat.setActionView(item, iv);
+//				// MenuItemCompat.getActionView(item).startAnimation(rotation);
+//				// MenuItemCompat.setActionView(item, R.layout.action_refresh);
+//			}
 			return true;
 		case R.id.action_visit_site:
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://cleantalk.org")));

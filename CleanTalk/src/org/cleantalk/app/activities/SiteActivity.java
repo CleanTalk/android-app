@@ -1,5 +1,6 @@
 package org.cleantalk.app.activities;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -45,14 +47,23 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setTitle("Wordpress.org");
-		
+
 		List<Request> dummyRequests = new ArrayList<Request>();
 		initDummyRequests(dummyRequests);
 
 		ListView listView = ((ListView) findViewById(android.R.id.list));
 		listView.setAdapter(new RequestAdapter(this, dummyRequests));
 		listView.setOnItemClickListener(this);
-
+		try {
+			ViewConfiguration config = ViewConfiguration.get(this);
+			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+			if (menuKeyField != null) {
+				menuKeyField.setAccessible(true);
+				menuKeyField.setBoolean(config, false);
+			}
+		} catch (Exception ex) {
+			// Ignore
+		}
 	}
 
 	private void initDummyRequests(List<Request> dummyRequests) {
@@ -84,7 +95,7 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 		case R.id.action_refresh:
 			// Drawable a = item.getIcon();
 			// View b = MenuItemCompat.getActionView(item);
-			if (!refreshing ) {
+			if (!refreshing) {
 				refreshing = true;
 				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
