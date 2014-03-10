@@ -1,6 +1,7 @@
 package org.cleantalk.app.activities;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,8 +12,7 @@ import android.util.Log;
 public class SplashActivity extends Activity {
 
 	/**
-	 * Timer for showing splash screen. App will open login activity when timer
-	 * will finish its work
+	 * Timer for showing splash screen. App will open login activity when timer will finish its work
 	 */
 	public class TimerTimeTask extends AsyncTask<Void, Void, Void> {
 
@@ -30,9 +30,8 @@ public class SplashActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			// Checking whether user was logged
-			// Boolean isLoggedUser = authorizedUserManager.isUserLogged();
-			Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+			Intent intent = new Intent(SplashActivity.this,
+					ServiceApi.getInstance(SplashActivity.this).isSessionExist() ? MainActivity.class : LoginActivity.class);
 			startActivity(intent);
 			finish();
 		}

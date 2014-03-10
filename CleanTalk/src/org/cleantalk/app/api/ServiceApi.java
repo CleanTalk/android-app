@@ -95,4 +95,7 @@ public class ServiceApi {
 		getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
 	}
 
+	public boolean isSessionExist(){
+		return !TextUtils.isEmpty(getAppSessionId());
+	}
 }

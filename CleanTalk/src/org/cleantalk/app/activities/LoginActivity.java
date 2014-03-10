@@ -13,8 +13,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -50,6 +53,7 @@ public class LoginActivity extends Activity {
 	private TextView mLoginStatusMessageView;
 
 	private ServiceApi serviceApi_;
+	private boolean isPlayservicesDeclined_ = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +66,7 @@ public class LoginActivity extends Activity {
 			@Override
 			public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
 				if (id == R.id.login || id == EditorInfo.IME_NULL) {
-					attemptLogin(false);
+					attemptLogin();
 					return true;
 				}
 				return false;
@@ -74,7 +78,7 @@ public class LoginActivity extends Activity {
 		findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				attemptLogin(false);
+				attemptLogin();
 			}
 		});
 	}
@@ -83,8 +87,8 @@ public class LoginActivity extends Activity {
 	 * Attempts to sign in or register the account specified by the login form. If there are form errors (invalid email, missing fields,
 	 * etc.), the errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin(boolean skipPlayService) {
-		if (!skipPlayService && !checkPlayServices()) {
+	public void attemptLogin() {
+		if (!isPlayservicesDeclined_ && !checkPlayServices()) {
 			return;
 		}
 
@@ -164,10 +168,12 @@ public class LoginActivity extends Activity {
 		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (resultCode != ConnectionResult.SUCCESS) {
 			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-				GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
-			} else {
-				attemptLogin(true);
-				Toast.makeText(this, "Google Play Services must be installed.", Toast.LENGTH_SHORT).show();
+				GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST, new OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+						declinePlayService();
+					}
+				}).show();
 			}
 			return false;
 		}
@@ -179,8 +185,7 @@ public class LoginActivity extends Activity {
 		switch (requestCode) {
 		case PLAY_SERVICES_RESOLUTION_REQUEST:
 			if (resultCode == RESULT_CANCELED) {
-				attemptLogin(true);
-				Toast.makeText(this, "Google Play Services must be installed.", Toast.LENGTH_SHORT).show();
+				declinePlayService();
 			}
 			return;
 		}
@@ -208,10 +213,10 @@ public class LoginActivity extends Activity {
 		public void onErrorResponse(VolleyError error) {
 			mAuthTask = null;
 			showProgress(false);
-
 			if (error instanceof NoConnectionError) {
 				Toast.makeText(LoginActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
-			} else if (error instanceof AuthFailureError) {
+			} else 
+				if (error instanceof AuthFailureError) {
 				mPasswordView.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
 			} else {
@@ -220,4 +225,8 @@ public class LoginActivity extends Activity {
 		}
 	};
 
+	private void declinePlayService(){
+		isPlayservicesDeclined_ = true;
+		Toast.makeText(this, R.string.play_services_required, Toast.LENGTH_LONG).show();
+	}
 }

@@ -14,6 +14,7 @@
     <string name="action_logout">Выйти</string>
     <string name="auth_error">Ошибка авторизации, пожалуйста проверьте логин и пароль.</string>
     <string name="connection_error">Проверьте интернет соединение и повторите попытку</string>
+    <string name="play_services_required">Google Play Services необходимы для получения уведомления с сайта. Уведомления не будут активны.</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

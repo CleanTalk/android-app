@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
@@ -38,7 +39,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private ServiceApi serviceApi_;
 	private ListView listView_;
-	
+
 	private Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
 		@Override
 		public void onResponse(JSONArray response) {
@@ -49,6 +50,9 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	private ErrorListener errorListener_ = new ErrorListener() {
 		@Override
 		public void onErrorResponse(VolleyError error) {
+			if (error instanceof AuthFailureError) {
+				finish();
+			}
 		}
 	};
 
@@ -188,11 +192,11 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
-	private List<Site> parse(JSONArray array){
+
+	private List<Site> parse(JSONArray array) {
 		List<Site> result = new ArrayList<Site>();
 		int len = array.length();
-		
+
 		for (int i = 0; i < len; i++) {
 			JSONObject obj = null;
 			try {
@@ -203,24 +207,18 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			}
 			Site site = null;
 			try {
-				site = new Site(
-						obj.getString("servicename"),
-						obj.getString("service_id"),
-						obj.getJSONObject("today").getInt("spam"),
-						obj.getJSONObject("today").getInt("allow"),
-						obj.getJSONObject("yesterday").getInt("spam"),
-						obj.getJSONObject("yesterday").getInt("allow"),
-						obj.getJSONObject("week").getInt("spam"),
-						obj.getJSONObject("week").getInt("allow"));
+				site = new Site(obj.getString("servicename"), obj.getString("service_id"), obj.getJSONObject("today").getInt("spam"), obj
+						.getJSONObject("today").getInt("allow"), obj.getJSONObject("yesterday").getInt("spam"), obj.getJSONObject(
+						"yesterday").getInt("allow"), obj.getJSONObject("week").getInt("spam"), obj.getJSONObject("week").getInt("allow"));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			result.add(site);
-			
+
 		}
-		
+
 		return result;
-		
+
 	}
 }
