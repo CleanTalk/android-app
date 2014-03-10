@@ -3,6 +3,7 @@ package org.cleantalk.app.model;
 public class Site {
 	private final String siteId_;
 	private final String siteName_;
+	private final String faviconUrl_;
 	private final int todayAllowed_;
 	private final int todayBlocked_;
 	private final int weekAllowed_;
@@ -10,10 +11,11 @@ public class Site {
 	private final int yesterdayAllowed_;
 	private final int yesterdayBlocked_;
 
-	public Site(String siteName, String siteId, int todayBlocked, int todayAllowed, int yesterdayBlocked, int yesterdayAllowed,
-			int weekBlocked, int weekAllowed) {
+	public Site(String siteName, String siteId, String faviconUrl, int todayBlocked, int todayAllowed, int yesterdayBlocked,
+			int yesterdayAllowed, int weekBlocked, int weekAllowed) {
 		siteId_ = siteId;
 		siteName_ = siteName;
+		faviconUrl_ = faviconUrl;
 		todayAllowed_ = todayAllowed;
 		todayBlocked_ = todayBlocked;
 		weekAllowed_ = weekAllowed;
@@ -25,9 +27,15 @@ public class Site {
 	public String getSiteId() {
 		return siteId_;
 	}
+
 	public String getSiteName() {
 		return siteName_;
 	}
+
+	public String getFaviconUrl() {
+		return faviconUrl_;
+	}
+
 	public int getTodayAllowed() {
 		return todayAllowed_;
 	}

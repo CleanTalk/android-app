@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 
 import com.android.volley.AuthFailureError;
@@ -14,6 +16,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 public class ServiceApi {
@@ -37,10 +40,24 @@ public class ServiceApi {
 
 	private final RequestQueue requestQueue_;
 	private final Context context_;
+	private final ImageLoader imageLoader_;
 
 	public ServiceApi(Context context) {
 		context_ = context;
 		requestQueue_ = Volley.newRequestQueue(context_);
+		imageLoader_ = new ImageLoader(requestQueue_, new ImageLoader.ImageCache() {
+			private final LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(5);
+
+			@Override
+			public void putBitmap(String url, Bitmap bitmap) {
+				mCache.put(url, bitmap);
+			}
+
+			@Override
+			public Bitmap getBitmap(String url) {
+				return mCache.get(url);
+			}
+		});
 	}
 
 	public void authenticate(String login, String pass, String appSenderId, final Listener<Boolean> listener,
@@ -95,7 +112,11 @@ public class ServiceApi {
 		getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
 	}
 
-	public boolean isSessionExist(){
+	public boolean isSessionExist() {
 		return !TextUtils.isEmpty(getAppSessionId());
+	}
+
+	public ImageLoader getImageLoader() {
+		return imageLoader_;
 	}
 }

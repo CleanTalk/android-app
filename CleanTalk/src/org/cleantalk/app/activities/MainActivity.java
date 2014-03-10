@@ -16,6 +16,7 @@ import com.android.volley.NetworkError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.NetworkImageView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -138,6 +139,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				v = LayoutInflater.from(context_).inflate(R.layout.list_row_sites, null);
 				// cache view fields into the holder
 				holder = new ViewHolder();
+				holder.imageViewLogo = (NetworkImageView) v.findViewById(R.id.imageViewLogo);
 				holder.textViewSiteName = (TextView) v.findViewById(R.id.textViewSiteName);
 				holder.textViewTodayBlocked = (TextView) v.findViewById(R.id.textViewTodayBlocked);
 				holder.textViewTodayAllowed = (TextView) v.findViewById(R.id.textViewTodayAllowed);
@@ -153,6 +155,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			}
 
 			Site site = getItem(position);
+			holder.imageViewLogo.setImageUrl(site.getFaviconUrl(), ServiceApi.getInstance(context_).getImageLoader());
 			holder.textViewSiteName.setText(site.getSiteName());
 			holder.textViewTodayAllowed.setText(String.valueOf(site.getTodayAllowed()));
 			holder.textViewTodayBlocked.setText(String.valueOf(site.getTodayBlocked()));
@@ -166,6 +169,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 
 		// somewhere else in your class definition
 		private class ViewHolder {
+			NetworkImageView imageViewLogo;
 			TextView textViewSiteName;
 			TextView textViewTodayBlocked;
 			TextView textViewTodayAllowed;
@@ -173,6 +177,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			TextView textViewYesterdayAllowed;
 			TextView textViewWeekBlocked;
 			TextView textViewWeekAllowed;
+			
 		}
 
 		@Override
@@ -238,9 +243,16 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			}
 			Site site = null;
 			try {
-				site = new Site(obj.getString("servicename"), obj.getString("service_id"), obj.getJSONObject("today").getInt("spam"), obj
-						.getJSONObject("today").getInt("allow"), obj.getJSONObject("yesterday").getInt("spam"), obj.getJSONObject(
-						"yesterday").getInt("allow"), obj.getJSONObject("week").getInt("spam"), obj.getJSONObject("week").getInt("allow"));
+				site = new Site(
+						obj.getString("servicename"),
+						obj.getString("service_id"),
+						obj.getString("favicon_url"),
+						obj.getJSONObject("today").getInt("spam"),
+						obj.getJSONObject("today").getInt("allow"),
+						obj.getJSONObject("yesterday").getInt("spam"),
+						obj.getJSONObject("yesterday").getInt("allow"),
+						obj.getJSONObject("week").getInt("spam"), 
+						obj.getJSONObject("week").getInt("allow"));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
