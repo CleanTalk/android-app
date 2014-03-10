@@ -5,6 +5,13 @@
     android:orientation="vertical"
     tools:context=".MainActivity" >
 
+    <View
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:visibility="gone"
+        android:background="@drawable/progress_indeterminate_horizontal_holo" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

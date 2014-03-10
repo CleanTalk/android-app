@@ -12,12 +12,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -33,6 +35,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements OnItemClickListener {
 
@@ -44,6 +47,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		@Override
 		public void onResponse(JSONArray response) {
 			loadSites(response);
+			hideProgress();
 		}
 	};
 
@@ -52,7 +56,10 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		public void onErrorResponse(VolleyError error) {
 			if (error instanceof AuthFailureError) {
 				finish();
+			} else if (error instanceof NetworkError) {
+				Toast.makeText(MainActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
 			}
+			hideProgress();
 		}
 	};
 
@@ -80,7 +87,30 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	@Override
 	protected void onResume() {
 		serviceApi_.requestServices(responseListener_, errorListener_);
+		showProgress();
 		super.onResume();
+	}
+
+	private void showProgress() {
+		View progressView = findViewById(R.id.progress);
+		final AnimationDrawable animation = (AnimationDrawable) progressView.getBackground();
+		progressView.post(new Runnable() {
+			public void run() {
+				animation.start();
+			}
+		});
+		progressView.setVisibility(View.VISIBLE);
+	}
+
+	private void hideProgress() {
+		View progressView = findViewById(R.id.progress);
+		progressView.setVisibility(View.GONE);
+		final AnimationDrawable animation = (AnimationDrawable) progressView.getBackground();
+		progressView.post(new Runnable() {
+			public void run() {
+				animation.stop();
+			}
+		});
 	}
 
 	private void loadSites(JSONArray response) {
@@ -179,6 +209,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_refresh:
+			showProgress();
 			serviceApi_.requestServices(responseListener_, errorListener_);
 			return true;
 		case R.id.action_visit_site:
