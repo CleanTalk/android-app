@@ -3,6 +3,9 @@ package org.cleantalk.app.utils;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -10,6 +13,12 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.cleantalk.app.model.Request;
+import org.cleantalk.app.model.Site;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.provider.Settings.Secure;
@@ -116,11 +125,10 @@ public class Utils {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Reallocates an array with a new size, and copies the contents of the old
-	 * array to the new array.
-	 *
+	 * Reallocates an array with a new size, and copies the contents of the old array to the new array.
+	 * 
 	 * @param oldArray
 	 *            the old array, to be reallocated.
 	 * @param newSize
@@ -136,5 +144,103 @@ public class Utils {
 			System.arraycopy(oldArray, 0, newArray, 0, preserveLength);
 		}
 		return newArray;
+	}
+
+	public static long getWeekAgoTimestamp() {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_YEAR, -7);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		return cal.getTimeInMillis() / 1000L;
+	}
+
+	public static long getTodayTimestamp() {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		return cal.getTimeInMillis() / 1000L;
+	}
+
+	public static long getYesterdayTimestamp() {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_YEAR, -1);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		return cal.getTimeInMillis() / 1000L;
+	}
+	
+	public static List<Site> parseSites(JSONArray array) {
+		List<Site> result = new ArrayList<Site>();
+		int len = array.length();
+
+		for (int i = 0; i < len; i++) {
+			JSONObject obj = null;
+			try {
+				obj = array.getJSONObject(i);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Site site = null;
+			try {
+				site = new Site(
+						obj.getString("servicename"),
+						obj.getString("service_id"),
+						obj.getString("favicon_url"),
+						obj.getJSONObject("today").getInt("spam"),
+						obj.getJSONObject("today").getInt("allow"),
+						obj.getJSONObject("yesterday").getInt("spam"),
+						obj.getJSONObject("yesterday").getInt("allow"),
+						obj.getJSONObject("week").getInt("spam"), 
+						obj.getJSONObject("week").getInt("allow"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			result.add(site);
+
+		}
+		return result;
+	}
+	
+	public static List<Request> parseRequests(JSONArray array) {
+		List<Request> result = new ArrayList<Request>();
+		int len = array.length();
+
+		for (int i = 0; i < len; i++) {
+			JSONObject obj = null;
+			try {
+				obj = array.getJSONObject(i);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Request site = null;
+			try {
+				site = new Request(
+						obj.getString("request_id"),
+						obj.getInt("allow")==1,
+						obj.getString("datetime"),
+						obj.getString("sender_email"),
+						obj.getString("sender_nickname"),
+						obj.getString("type"),
+						obj.getString("message"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			result.add(site);
+
+		}
+		return result;
 	}
 }

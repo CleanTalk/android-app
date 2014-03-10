@@ -1,7 +1,6 @@
 package org.cleantalk.app.model;
 
 public class Request {
-	private final int siteId_;
 	private final String requestId_;
 	private final boolean allow_;
 	private final String datetime_;
@@ -10,8 +9,7 @@ public class Request {
 	private final String type_;
 	private final String message_;
 
-	public Request(int siteId, String requestId, boolean allow, String datetime, String senderEmail, String senderNickname, String type, String message) {
-		siteId_ = siteId;
+	public Request(String requestId, boolean allow, String datetime, String senderEmail, String senderNickname, String type, String message) {
 		requestId_ = requestId;
 		allow_ = allow;
 		datetime_ = datetime;
@@ -49,7 +47,4 @@ public class Request {
 		return message_;
 	}
 
-	public int getSiteId() {
-		return siteId_;
-	}
 }

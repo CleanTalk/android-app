@@ -1,23 +1,26 @@
 package org.cleantalk.app.activities;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Request;
+import org.cleantalk.app.utils.Utils;
+import org.json.JSONArray;
 
-import android.app.ListActivity;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.VolleyError;
+
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,36 +28,71 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-public class SiteActivity extends ActionBarActivity implements OnItemClickListener {
+public class SiteActivity extends ActionBarActivity {
 
-	private boolean refreshing = false;
+	protected static final String EXTRA_REQUEST_TYPE = "EXTRA_REQUEST_TYPE";
+	protected static final String EXTRA_SITE_ID = "EXTRA_SITE_ID";
+	protected static final String EXTRA_SITE_NAME = "EXTRA_SITE_NAME";
+
+	private ServiceApi serviceApi_;
+	private ListView listView_;
+
+	private Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
+		@Override
+		public void onResponse(JSONArray response) {
+			loadRequests(response);
+			hideProgress();
+		}
+	};
+	private ErrorListener errorListener_ = new ErrorListener() {
+		@Override
+		public void onErrorResponse(VolleyError error) {
+			if (error instanceof AuthFailureError) {
+				startActivity(new Intent(SiteActivity.this, LoginActivity.class));
+				finish();
+			} else if (error instanceof NetworkError) {
+				Toast.makeText(SiteActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
+			}
+			hideProgress();
+		}
+	};
+	private String siteId_;
+	private Integer requestType_;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_site);
 
+		Bundle extras = getIntent().getExtras();
+		if (extras == null) {
+			finish();
+			return;
+		}
+
+		siteId_ = extras.getString(EXTRA_SITE_ID);
+		requestType_ = extras.getInt(EXTRA_REQUEST_TYPE, -1);
+		if (siteId_ == null || requestType_ == -1) {
+			finish();
+			return;
+		}
+
+		String title = extras.getString(EXTRA_SITE_NAME);
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setTitle("Wordpress.org");
+		if (title != null) {
+			actionBar.setTitle(title);
+		}
+		serviceApi_ = ServiceApi.getInstance(this);
+		listView_ = ((ListView) findViewById(android.R.id.list));
+		listView_.setEmptyView(findViewById(android.R.id.empty));
 
-		List<Request> dummyRequests = new ArrayList<Request>();
-		initDummyRequests(dummyRequests);
-
-		ListView listView = ((ListView) findViewById(android.R.id.list));
-		listView.setAdapter(new RequestAdapter(this, dummyRequests));
-		listView.setOnItemClickListener(this);
 		try {
 			ViewConfiguration config = ViewConfiguration.get(this);
 			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -67,19 +105,47 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 		}
 	}
 
-	private void initDummyRequests(List<Request> dummyRequests) {
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", true, "2014-03-01 07:31:06", "bowers.craig@gmail.com",
-				"cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
-		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com",
-				"cbowers-test", "Post", "<p>disappointed...Again</p>"));
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com",
-				"cbowers-test", "Post", "<p>disappointed...</p>"));
-		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com",
-				"cbowers-test", "Post", "<p>disappointed...Again</p>"));
-		dummyRequests.add(new Request(1, "c1e7028ad9f3fef5f729d31e232b7a89", false, "2014-03-01 07:31:06", "bowers.craig@gmail.com",
-				"cbowers-test", "Post", "<a href=\"http://cleantalk.org\">Избався</a> от <b>спама</b>"));
-		dummyRequests.add(new Request(1, "b2f79242fb6a6e3817e3b5148ffeb243", true, "2014-03-01 07:27:24", "bowers.craig@gmail.com",
-				"cbowers-test", "Post", "<p>disappointed...Again</p>"));
+	@Override
+	protected void onResume() {
+		requestData();
+		super.onResume();
+	}
+
+	private void requestData() {
+		showProgress();
+		long startFrom = -1L;
+		int allow = -1;
+
+		switch (requestType_) {
+		case R.id.textViewTodayAllowed:
+			startFrom = Utils.getTodayTimestamp();
+			allow = 1;
+			break;
+		case R.id.textViewTodayBlocked:
+			startFrom = Utils.getTodayTimestamp();
+			allow = 0;
+			break;
+		case R.id.textViewWeekAllowed:
+			startFrom = Utils.getWeekAgoTimestamp();
+			allow = 1;
+			break;
+		case R.id.textViewWeekBlocked:
+			startFrom = Utils.getWeekAgoTimestamp();
+			allow = 0;
+			break;
+		case R.id.textViewYesterdayAllowed:
+			startFrom = Utils.getYesterdayTimestamp();
+			allow = 1;
+			break;
+		case R.id.textViewYesterdayBlocked:
+			startFrom = Utils.getYesterdayTimestamp();
+			allow = 0;
+			break;
+		default:
+			break;
+		}
+
+		serviceApi_.requestRequests(siteId_, startFrom, allow, responseListener_, errorListener_);
 	}
 
 	@Override
@@ -94,27 +160,7 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_refresh:
-			// Drawable a = item.getIcon();
-			// View b = MenuItemCompat.getActionView(item);
-			if (!refreshing) {
-				refreshing = true;
-				LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
-				iv.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						refreshing = false;
-						MenuItemCompat.getActionView(item).clearAnimation();
-						MenuItemCompat.setActionView(item, null);
-					}
-				});
-				Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
-				rotation.setRepeatCount(Animation.INFINITE);
-				iv.startAnimation(rotation);
-				MenuItemCompat.setActionView(item, iv);
-				// MenuItemCompat.getActionView(item).startAnimation(rotation);
-				// MenuItemCompat.setActionView(item, R.layout.action_refresh);
-			}
+			requestData();
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -130,6 +176,16 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 			items_ = objects;
 		}
 
+		@Override
+		public boolean areAllItemsEnabled() {
+			return false;
+		}
+		
+		@Override
+		public boolean isEnabled(int position) {
+			return false;
+		}
+		
 		@Override
 		public int getCount() {
 			return items_.size();
@@ -196,29 +252,17 @@ public class SiteActivity extends ActionBarActivity implements OnItemClickListen
 
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	private void showProgress() {
+		((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(0);
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(1500);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				runOnUiThread(new Runnable() {
-					public void run() {
-						((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(1);
-					}
-				});
-			}
-		}).start();
+	private void hideProgress() {
+		((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(1);
 	}
+
+	private void loadRequests(JSONArray response) {
+		List<Request> requests = Utils.parseRequests(response);
+		listView_.setAdapter(new RequestAdapter(this, requests));
+	}
+
 }

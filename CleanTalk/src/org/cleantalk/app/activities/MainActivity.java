@@ -1,15 +1,13 @@
 package org.cleantalk.app.activities;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Site;
+import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -29,16 +27,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity implements OnItemClickListener {
+public class MainActivity extends ActionBarActivity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private ServiceApi serviceApi_;
@@ -56,6 +53,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		@Override
 		public void onErrorResponse(VolleyError error) {
 			if (error instanceof AuthFailureError) {
+				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			} else if (error instanceof NetworkError) {
 				Toast.makeText(MainActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
@@ -71,7 +69,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 
 		serviceApi_ = ServiceApi.getInstance(this);
 		listView_ = ((ListView) findViewById(android.R.id.list));
-		listView_.setOnItemClickListener(this);
+		listView_.setEmptyView(findViewById(android.R.id.empty));
 
 		try {
 			ViewConfiguration config = ViewConfiguration.get(this);
@@ -115,7 +113,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	}
 
 	private void loadSites(JSONArray response) {
-		List<Site> sites = parse(response);
+		List<Site> sites = Utils.parseSites(response);
 		listView_.setAdapter(new SitesAdapter(this, sites));
 	}
 
@@ -154,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				holder = (ViewHolder) v.getTag();
 			}
 
-			Site site = getItem(position);
+			final Site site = getItem(position);
 			holder.imageViewLogo.setImageUrl(site.getFaviconUrl(), ServiceApi.getInstance(context_).getImageLoader());
 			holder.textViewSiteName.setText(site.getSiteName());
 			holder.textViewTodayAllowed.setText(String.valueOf(site.getTodayAllowed()));
@@ -163,6 +161,34 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			holder.textViewWeekBlocked.setText(String.valueOf(site.getWeekBlocked()));
 			holder.textViewYesterdayAllowed.setText(String.valueOf(site.getYesterdayAllowed()));
 			holder.textViewYesterdayBlocked.setText(String.valueOf(site.getYesterdayBlocked()));
+
+			OnClickListener onCountClickListener = new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent(MainActivity.this, SiteActivity.class);
+					switch (v.getId()) {
+					case R.id.textViewTodayBlocked:
+					case R.id.textViewTodayAllowed:
+					case R.id.textViewYesterdayBlocked:
+					case R.id.textViewYesterdayAllowed:
+					case R.id.textViewWeekBlocked:
+					case R.id.textViewWeekAllowed:
+						intent.putExtra(SiteActivity.EXTRA_REQUEST_TYPE, v.getId());
+						intent.putExtra(SiteActivity.EXTRA_SITE_NAME, site.getSiteName());
+						intent.putExtra(SiteActivity.EXTRA_SITE_ID, site.getSiteId());
+						startActivity(intent);
+					default:
+						return;
+					}
+				}
+			};
+
+			holder.textViewTodayAllowed.setOnClickListener(onCountClickListener);
+			holder.textViewTodayBlocked.setOnClickListener(onCountClickListener);
+			holder.textViewWeekAllowed.setOnClickListener(onCountClickListener);
+			holder.textViewWeekBlocked.setOnClickListener(onCountClickListener);
+			holder.textViewYesterdayAllowed.setOnClickListener(onCountClickListener);
+			holder.textViewYesterdayBlocked.setOnClickListener(onCountClickListener);
 
 			return v;
 		}
@@ -177,7 +203,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			TextView textViewYesterdayAllowed;
 			TextView textViewWeekBlocked;
 			TextView textViewWeekAllowed;
-			
+
 		}
 
 		@Override
@@ -194,12 +220,16 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		public long getItemId(int position) {
 			return position;
 		}
-	}
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Intent intent = new Intent(this, SiteActivity.class);
-		startActivity(intent);
+		@Override
+		public boolean areAllItemsEnabled() {
+			return false;
+		}
+
+		@Override
+		public boolean isEnabled(int position) {
+			return false;
+		}
 	}
 
 	@Override
@@ -227,41 +257,5 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private List<Site> parse(JSONArray array) {
-		List<Site> result = new ArrayList<Site>();
-		int len = array.length();
-
-		for (int i = 0; i < len; i++) {
-			JSONObject obj = null;
-			try {
-				obj = array.getJSONObject(i);
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			Site site = null;
-			try {
-				site = new Site(
-						obj.getString("servicename"),
-						obj.getString("service_id"),
-						obj.getString("favicon_url"),
-						obj.getJSONObject("today").getInt("spam"),
-						obj.getJSONObject("today").getInt("allow"),
-						obj.getJSONObject("yesterday").getInt("spam"),
-						obj.getJSONObject("yesterday").getInt("allow"),
-						obj.getJSONObject("week").getInt("spam"), 
-						obj.getJSONObject("week").getInt("allow"));
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			result.add(site);
-
-		}
-
-		return result;
-
 	}
 }

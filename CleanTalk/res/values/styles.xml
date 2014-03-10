@@ -31,8 +31,16 @@
     </style>
 
     <style name="tableRowItem">
-        <item name="android:layout_margin">5dp</item>
+        <item name="android:padding">8dp</item>
         <item name="android:textSize">8pt</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/row_item_bg</item>
+    </style>
+
+    <style name="tableRowTitle">
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">8pt</item>
+        <item name="android:textColor">@color/text_color</item>
     </style>
 
     <style name="ActionBarCompat" parent="@style/Widget.AppCompat.Base.ActionBar">

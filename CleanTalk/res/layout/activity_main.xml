@@ -9,8 +9,8 @@
         android:id="@+id/progress"
         android:layout_width="match_parent"
         android:layout_height="10dp"
-        android:visibility="gone"
-        android:background="@drawable/progress_indeterminate_horizontal_holo" />
+        android:background="@drawable/progress_indeterminate_horizontal_holo"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,6 +27,8 @@
             style="@style/tableRowItem"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:padding="0dp"
             android:text="Allowed"
             android:textColor="@color/allowed_count_label" />
 
@@ -35,6 +37,8 @@
             style="@style/tableRowItem"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:padding="0dp"
             android:text="Blocked"
             android:textColor="@color/spam_count_label" />
     </LinearLayout>
@@ -44,5 +48,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/no_data"
+        android:textColor="#99349ebf"
+        android:textSize="9pt" />
 
 </LinearLayout>

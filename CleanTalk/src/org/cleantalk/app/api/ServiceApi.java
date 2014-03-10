@@ -3,7 +3,6 @@ package org.cleantalk.app.api;
 import org.cleantalk.app.R;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,7 +26,7 @@ public class ServiceApi {
 	private static final String HOST = "https://cleantalk.org";
 	private static final String AUTH_URI = HOST + "/my/session?app_mode=1";
 	private static final String SERVICES_URI = HOST + "/my/main?app_mode=1";
-	private static final String REQUESTS_URI = HOST + "/my/main?app_mode=1";
+	private static final String REQUESTS_URI = HOST + "/my/show_requests?app_mode=1";
 
 	private static ServiceApi serviceApi_;
 
@@ -60,6 +59,14 @@ public class ServiceApi {
 		});
 	}
 
+	public boolean isSessionExist() {
+		return !TextUtils.isEmpty(getAppSessionId());
+	}
+
+	public ImageLoader getImageLoader() {
+		return imageLoader_;
+	}
+
 	public void authenticate(String login, String pass, String appSenderId, final Listener<Boolean> listener,
 			final ErrorListener errorListener) {
 		AuthRequest request = new AuthRequest(AUTH_URI, login, pass, appSenderId, Utils.getDeviceId(context_), new Listener<String>() {
@@ -80,7 +87,7 @@ public class ServiceApi {
 	public void requestServices(Listener<JSONArray> listener, ErrorListener errorListener) {
 		String appSessionId = getAppSessionId();
 		if (TextUtils.isEmpty(appSessionId)) {
-			VolleyError error = new VolleyError(context_.getString(R.string.auth_error));
+			AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
 			errorListener.onErrorResponse(error);
 			return;
 		}
@@ -88,8 +95,16 @@ public class ServiceApi {
 		requestQueue_.add(request);
 	}
 
-	public void getRequests(String login, String pass, Listener<JSONObject> listener, ErrorListener errorListener) {
-
+	public void requestRequests(String siteId, long startFrom, int allow, Listener<JSONArray> listener, ErrorListener errorListener) {
+		String appSessionId = getAppSessionId();
+		if (TextUtils.isEmpty(appSessionId)) {
+			AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
+			errorListener.onErrorResponse(error);
+			return;
+		}
+		RequestsRequest request = new RequestsRequest(context_, REQUESTS_URI, appSessionId, siteId, startFrom, allow, listener,
+				errorListener);
+		requestQueue_.add(request);
 	}
 
 	private SharedPreferences getPreferences() {
@@ -112,11 +127,4 @@ public class ServiceApi {
 		getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
 	}
 
-	public boolean isSessionExist() {
-		return !TextUtils.isEmpty(getAppSessionId());
-	}
-
-	public ImageLoader getImageLoader() {
-		return imageLoader_;
-	}
 }
