@@ -1,15 +1,21 @@
 package org.cleantalk.app.activities;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
+import org.cleantalk.app.gcm.GcmSenderIdRecieverTask;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 import android.app.Activity;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -18,22 +24,16 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
 public class LoginActivity extends Activity {
-	/**
-	 * A dummy authentication store containing known user names and passwords. TODO: remove after connecting to a real authentication
-	 * system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] { "a@a.a:aaaa" };
 
-	/**
-	 * The default email to populate the email field with.
-	 */
-	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
+	private static final String TAG = LoginActivity.class.getSimpleName();
+	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
@@ -47,41 +47,34 @@ public class LoginActivity extends Activity {
 	// UI references.
 	private EditText mEmailView;
 	private EditText mPasswordView;
-	private View mLoginFormView;
-	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
+
+	private ServiceApi serviceApi_;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.activity_login);
-
-		// Set up the login form.
-		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
+		serviceApi_ = ServiceApi.getInstance(this);
 		mEmailView = (EditText) findViewById(R.id.email);
-		mEmailView.setText(mEmail);
-
 		mPasswordView = (EditText) findViewById(R.id.password);
 		mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
 				if (id == R.id.login || id == EditorInfo.IME_NULL) {
-					attemptLogin();
+					attemptLogin(false);
 					return true;
 				}
 				return false;
 			}
 		});
 
-		mLoginFormView = findViewById(R.id.login_form);
-		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
 		findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				attemptLogin();
+				attemptLogin(false);
 			}
 		});
 	}
@@ -90,7 +83,11 @@ public class LoginActivity extends Activity {
 	 * Attempts to sign in or register the account specified by the login form. If there are form errors (invalid email, missing fields,
 	 * etc.), the errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin() {
+	public void attemptLogin(boolean skipPlayService) {
+		if (!skipPlayService && !checkPlayServices()) {
+			return;
+		}
+
 		if (mAuthTask != null) {
 			return;
 		}
@@ -106,29 +103,17 @@ public class LoginActivity extends Activity {
 		boolean cancel = false;
 		View focusView = null;
 
-		// Check for a valid password.
 		if (TextUtils.isEmpty(mPassword)) {
 			mPasswordView.setError(getString(R.string.error_field_required));
 			focusView = mPasswordView;
 			cancel = true;
 		}
-		// else if (mPassword.length() < 4) {
-		// mPasswordView.setError(getString(R.string.error_invalid_password));
-		// focusView = mPasswordView;
-		// cancel = true;
-		// }
 
-		// Check for a valid email address.
 		if (TextUtils.isEmpty(mEmail)) {
 			mEmailView.setError(getString(R.string.error_field_required));
 			focusView = mEmailView;
 			cancel = true;
 		}
-		// else if (!mEmail.contains("@")) {
-		// mEmailView.setError(getString(R.string.error_invalid_email));
-		// focusView = mEmailView;
-		// cancel = true;
-		// }
 
 		if (cancel) {
 			// There was an error; don't attempt login and focus the first
@@ -141,7 +126,7 @@ public class LoginActivity extends Activity {
 			showProgress(true);
 			InputMethodManager imm = (InputMethodManager) this.getSystemService(Service.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
-			mAuthTask = new UserLoginTask();
+			mAuthTask = new UserLoginTask(this);
 			mAuthTask.execute((Void) null);
 		}
 	}
@@ -151,68 +136,60 @@ public class LoginActivity extends Activity {
 	}
 
 	/**
-	 * Shows the progress UI and hides the login form.
+	 * Represents an asynchronous login/registration task used to authenticate the user.
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress1(final boolean show) {
-		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-		// for very easy animations. If available, use these APIs to fade-in
-		// the progress spinner.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+	public class UserLoginTask extends GcmSenderIdRecieverTask {
 
-			mLoginStatusView.setVisibility(View.VISIBLE);
-			mLoginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-				@Override
-				public void onAnimationEnd(Animator animation) {
-					mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-				}
-			});
+		public UserLoginTask(Context context) {
+			super(context);
+		}
 
-			mLoginFormView.setVisibility(View.VISIBLE);
-			mLoginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-				@Override
-				public void onAnimationEnd(Animator animation) {
-					mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-				}
-			});
-		} else {
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
-			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+		@Override
+		protected void onPostExecute(final String appSenderId) {
+			serviceApi_.authenticate(mEmail, mPassword, appSenderId, authResultListener, authErrorListener);
+		}
+
+		@Override
+		protected void onCancelled() {
+			mAuthTask = null;
+			showProgress(false);
 		}
 	}
 
 	/**
-	 * Represents an asynchronous login/registration task used to authenticate the user.
+	 * Check the device to make sure it has the Google Play Services APK. If it doesn't, display a dialog that allows users to download the
+	 * APK from the Google Play Store or enable it in the device's system settings.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
-
-			try {
-				// Simulate network access.
-				Thread.sleep(4000);
-			} catch (InterruptedException e) {
-				return false;
+	private boolean checkPlayServices() {
+		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if (resultCode != ConnectionResult.SUCCESS) {
+			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+				GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+			} else {
+				attemptLogin(true);
+				Toast.makeText(this, "Google Play Services must be installed.", Toast.LENGTH_SHORT).show();
 			}
-
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
-			}
-
-			// TODO: register the new account here.
 			return false;
 		}
+		return true;
+	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case PLAY_SERVICES_RESOLUTION_REQUEST:
+			if (resultCode == RESULT_CANCELED) {
+				attemptLogin(true);
+				Toast.makeText(this, "Google Play Services must be installed.", Toast.LENGTH_SHORT).show();
+			}
+			return;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private Listener<Boolean> authResultListener = new Listener<Boolean>() {
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		public void onResponse(Boolean success) {
 			mAuthTask = null;
 			if (success) {
 				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -224,11 +201,23 @@ public class LoginActivity extends Activity {
 				mPasswordView.requestFocus();
 			}
 		}
+	};
 
+	private ErrorListener authErrorListener = new ErrorListener() {
 		@Override
-		protected void onCancelled() {
+		public void onErrorResponse(VolleyError error) {
 			mAuthTask = null;
 			showProgress(false);
+
+			if (error instanceof NoConnectionError) {
+				Toast.makeText(LoginActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
+			} else if (error instanceof AuthFailureError) {
+				mPasswordView.setError(getString(R.string.error_incorrect_password));
+				mPasswordView.requestFocus();
+			} else {
+				Toast.makeText(LoginActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+			}
 		}
-	}
+	};
+
 }

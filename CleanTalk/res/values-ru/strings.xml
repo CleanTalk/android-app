@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+
     <string name="action_settings">Настройки</string>
     <string name="label_today">Сегодня</string>
     <string name="label_yesterday">Вчера</string>
@@ -11,6 +12,8 @@
     <string name="action_control_panel">Панель управления</string>
     <string name="action_visit_site">Перейти на cleantalk.org</string>
     <string name="action_logout">Выйти</string>
+    <string name="auth_error">Ошибка авторизации, пожалуйста проверьте логин и пароль.</string>
+    <string name="connection_error">Проверьте интернет соединение и повторите попытку</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

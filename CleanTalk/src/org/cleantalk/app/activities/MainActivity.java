@@ -1,28 +1,25 @@
 package org.cleantalk.app.activities;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Site;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,50 +27,39 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements OnItemClickListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
+	private ServiceApi serviceApi_;
+	private ListView listView_;
+	
+	private Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
+		@Override
+		public void onResponse(JSONArray response) {
+			loadSites(response);
+		}
+	};
 
-	private final static String SENDER_ID = "216229348983";
-	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-
-	private static final String PROPERTY_REG_ID = "PROPERTY_REG_ID";
-	private static final String PROPERTY_APP_VERSION = "PROPERTY_APP_VERSION";
-
-	private GoogleCloudMessaging gcm;
-	private String registrationId_;
+	private ErrorListener errorListener_ = new ErrorListener() {
+		@Override
+		public void onErrorResponse(VolleyError error) {
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// Check device for Play Services APK. If check succeeds, proceed with GCM registration.
-		if (checkPlayServices()) {
-			gcm = GoogleCloudMessaging.getInstance(this);
-			registrationId_ = getRegistrationId(this);
-
-			if (TextUtils.isEmpty(registrationId_)) {
-				registerBackground();
-			}
-		} else {
-			Log.i(TAG, "No valid Google Play Services APK found.");
-		}
-
-		List<Site> dummySites = new ArrayList<Site>();
-		initDummySites(dummySites);
-
-		ListView listView = ((ListView) findViewById(android.R.id.list));
-		listView.setAdapter(new SitesAdapter(this, dummySites));
-		listView.setOnItemClickListener(this);
+		serviceApi_ = ServiceApi.getInstance(this);
+		listView_ = ((ListView) findViewById(android.R.id.list));
+		listView_.setOnItemClickListener(this);
 
 		try {
 			ViewConfiguration config = ViewConfiguration.get(this);
@@ -87,12 +73,15 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		}
 	}
 
-	private void initDummySites(List<Site> dummySites) {
-		dummySites.add(new Site("Site 1", 0, 1, 3, 10, 15, 113, 224));
-		dummySites.add(new Site("Site 2", 0, 2, 5, 12, 15, 115, 123));
-		dummySites.add(new Site("Site 3", 0, 1, 1, 1, 1, 1, 1));
-		dummySites.add(new Site("Site 4", 0, 1, 2, 1, 12, 14, 1321));
-		dummySites.add(new Site("Site 5", 0, 1, 1, 1, 1, 1, 1));
+	@Override
+	protected void onResume() {
+		serviceApi_.requestServices(responseListener_, errorListener_);
+		super.onResume();
+	}
+
+	private void loadSites(JSONArray response) {
+		List<Site> sites = parse(response);
+		listView_.setAdapter(new SitesAdapter(this, sites));
 	}
 
 	private class SitesAdapter extends BaseAdapter {
@@ -168,138 +157,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		}
 	}
 
-	/**
-	 * Check the device to make sure it has the Google Play Services APK. If it doesn't, display a dialog that allows users to download the
-	 * APK from the Google Play Store or enable it in the device's system settings.
-	 */
-	private boolean checkPlayServices() {
-		int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-		if (resultCode != ConnectionResult.SUCCESS) {
-			if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-				GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
-			} else {
-				Log.i(TAG, "This device is not supported.");
-				finish();
-			}
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Gets the current registration ID for application on GCM service.
-	 * <p>
-	 * If result is empty, the app needs to register.
-	 * 
-	 * @return registration ID, or empty string if there is no existing registration ID.
-	 */
-	private String getRegistrationId(Context context) {
-		final SharedPreferences prefs = getPreferences(context);
-		String registrationId = prefs.getString(PROPERTY_REG_ID, "");
-		if (TextUtils.isEmpty(registrationId)) {
-			Log.i(TAG, "Registration not found.");
-			return "";
-		}
-		// Check if app was updated; if so, it must clear the registration ID
-		// since the existing regID is not guaranteed to work with the new
-		// app version.
-		int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-		int currentVersion = getAppVersion(context);
-		if (registeredVersion != currentVersion) {
-			Log.i(TAG, "App version changed.");
-			return "";
-		}
-		return registrationId;
-	}
-
-	/**
-	 * Stores the registration ID and app versionCode in the application's {@code SharedPreferences}.
-	 * 
-	 * @param context
-	 *            application's context.
-	 * @param regId
-	 *            registration ID
-	 */
-	private void setRegistrationId(Context context, String regId) {
-		final SharedPreferences prefs = getPreferences(context);
-		int appVersion = getAppVersion(context);
-		Log.i(TAG, "Saving regId on app version " + appVersion);
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putString(PROPERTY_REG_ID, regId);
-		editor.putInt(PROPERTY_APP_VERSION, appVersion);
-		editor.commit();
-	}
-
-	/**
-	 * @return Application's version code from the {@code PackageManager}.
-	 */
-	private static int getAppVersion(Context context) {
-		try {
-			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-			return packageInfo.versionCode;
-		} catch (NameNotFoundException e) {
-			// should never happen
-			throw new RuntimeException("Could not get package name: " + e);
-		}
-	}
-
-	/**
-	 * Registers the application with GCM servers asynchronously.
-	 * <p>
-	 * Stores the registration id, app versionCode, and expiration time in the application's shared preferences.
-	 */
-	private void registerBackground() {
-		new AsyncTask<Void, Void, String>() {
-			@Override
-			protected String doInBackground(Void... params) {
-				String msg = "";
-				try {
-					if (gcm == null) {
-						gcm = GoogleCloudMessaging.getInstance(MainActivity.this);
-					}
-					registrationId_ = gcm.register(SENDER_ID);
-					msg = "Device registered, registration id=" + registrationId_;
-
-					// You should send the registration ID to your server over HTTP, so it
-					// can use GCM/HTTP or CCS to send messages to your app.
-
-					// For this demo: we don't need to send it because the device will send
-					// upstream messages to a server that echo back the message using the
-					// 'from' address in the message.
-
-					// Save the regid - no need to register again.
-					setRegistrationId(MainActivity.this, registrationId_);
-					sendRegistrationIdToBackend();
-				} catch (IOException ex) {
-					msg = "Error :" + ex.getMessage();
-				}
-				return msg;
-			}
-
-			@Override
-			protected void onPostExecute(String msg) {
-				Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-			}
-		}.execute(null, null, null);
-	}
-
-	/**
-	 * @return Application's {@code SharedPreferences}.
-	 */
-	private SharedPreferences getPreferences(Context context) {
-		// This sample app persists the registration ID in shared preferences, but
-		// how you store the regID in your app is up to you.
-		return getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
-	}
-
-	/**
-	 * Sends the registration ID to your server over HTTP, so it can use GCM/HTTP or CCS to send messages to your app. Not needed for this
-	 * demo since the device sends upstream messages to a server that echoes back the message using the 'from' address in the message.
-	 */
-	private void sendRegistrationIdToBackend() {
-		// TODO Send data to service
-	}
-
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Intent intent = new Intent(this, SiteActivity.class);
@@ -318,27 +175,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_refresh:
-			// Drawable a = item.getIcon();
-			// View b = MenuItemCompat.getActionView(item);
-			// if (!refreshing) {
-			// refreshing = true;
-			// LayoutInflater inflater = (LayoutInflater) getApplication().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			// ImageView iv = (ImageView) inflater.inflate(R.layout.action_refresh, null);
-			// iv.setOnClickListener(new OnClickListener() {
-			// @Override
-			// public void onClick(View v) {
-			// refreshing = false;
-			// MenuItemCompat.getActionView(item).clearAnimation();
-			// MenuItemCompat.setActionView(item, null);
-			// }
-			// });
-			// Animation rotation = AnimationUtils.loadAnimation(getApplication(), R.anim.refresh_rotate);
-			// rotation.setRepeatCount(Animation.INFINITE);
-			// iv.startAnimation(rotation);
-			// MenuItemCompat.setActionView(item, iv);
-			// // MenuItemCompat.getActionView(item).startAnimation(rotation);
-			// // MenuItemCompat.setActionView(item, R.layout.action_refresh);
-			// }
+			serviceApi_.requestServices(responseListener_, errorListener_);
 			return true;
 		case R.id.action_visit_site:
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://cleantalk.org")));
@@ -350,5 +187,40 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	private List<Site> parse(JSONArray array){
+		List<Site> result = new ArrayList<Site>();
+		int len = array.length();
+		
+		for (int i = 0; i < len; i++) {
+			JSONObject obj = null;
+			try {
+				obj = array.getJSONObject(i);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Site site = null;
+			try {
+				site = new Site(
+						obj.getString("servicename"),
+						obj.getString("service_id"),
+						obj.getJSONObject("today").getInt("spam"),
+						obj.getJSONObject("today").getInt("allow"),
+						obj.getJSONObject("yesterday").getInt("spam"),
+						obj.getJSONObject("yesterday").getInt("allow"),
+						obj.getJSONObject("week").getInt("spam"),
+						obj.getJSONObject("week").getInt("allow"));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			result.add(site);
+			
+		}
+		
+		return result;
+		
 	}
 }

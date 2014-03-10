@@ -12,6 +12,8 @@
     <string name="action_control_panel">Control panel</string>
     <string name="action_visit_site">Visit cleantalk.org</string>
     <string name="action_logout">Logout</string>
+    <string name="auth_error">Login failure, please check email and password.</string>
+    <string name="connection_error">Check internet connection and try again.</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
