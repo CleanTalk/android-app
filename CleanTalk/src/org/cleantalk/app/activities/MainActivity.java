@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -61,6 +62,7 @@ public class MainActivity extends ActionBarActivity {
 			hideProgress();
 		}
 	};
+	private boolean doubleBackToExitPressedOnce_;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,10 @@ public class MainActivity extends ActionBarActivity {
 			}
 		});
 		progressView.setVisibility(View.VISIBLE);
+		TextView tv = (TextView) findViewById(android.R.id.empty);
+		if (tv != null) {
+			tv.setText(R.string.loading);
+		}
 	}
 
 	private void hideProgress() {
@@ -110,6 +116,10 @@ public class MainActivity extends ActionBarActivity {
 				animation.stop();
 			}
 		});
+		TextView tv = (TextView) findViewById(android.R.id.empty);
+		if (tv != null) {
+			tv.setText(R.string.no_data);
+		}
 	}
 
 	private void loadSites(JSONArray response) {
@@ -257,5 +267,21 @@ public class MainActivity extends ActionBarActivity {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (doubleBackToExitPressedOnce_) {
+			super.onBackPressed();
+			return;
+		}
+		this.doubleBackToExitPressedOnce_ = true;
+		Toast.makeText(this, R.string.click_back_again_to_exit, Toast.LENGTH_SHORT).show();
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				doubleBackToExitPressedOnce_ = false;
+			}
+		}, 2000);
 	}
 }

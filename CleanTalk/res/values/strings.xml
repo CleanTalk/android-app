@@ -12,6 +12,7 @@
     <string name="action_control_panel">Control panel</string>
     <string name="action_visit_site">Visit cleantalk.org</string>
     <string name="action_logout">Logout</string>
+    <string name="loading">Loading&#8230;</string>
     <string name="auth_error">Login failure, please check email and password.</string>
     <string name="connection_error">Check internet connection and try again.</string>
     <string name="play_services_required">Google Play Services required for notification from the site. Notifications will be disabled.</string>
@@ -27,5 +28,6 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="no_data">No data</string>
+    <string name="click_back_again_to_exit">Please click BACK again to exit</string>
 
 </resources>
