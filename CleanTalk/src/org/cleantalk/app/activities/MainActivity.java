@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
+import org.cleantalk.app.gcm.GcmIntentService;
 import org.cleantalk.app.model.Site;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
@@ -38,10 +39,6 @@ import com.android.volley.toolbox.NetworkImageView;
 
 public class MainActivity extends ActionBarActivity {
 
-	private static final String TAG = MainActivity.class.getSimpleName();
-	private ServiceApi serviceApi_;
-	private ListView listView_;
-
 	private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
 		@Override
 		public void onResponse(JSONArray response) {
@@ -62,7 +59,11 @@ public class MainActivity extends ActionBarActivity {
 			hideProgress();
 		}
 	};
+
+	private ServiceApi serviceApi_;
+	private ListView listView_;
 	private boolean doubleBackToExitPressedOnce_;
+	private boolean isNewLabelRequired_;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,9 @@ public class MainActivity extends ActionBarActivity {
 		listView_ = ((ListView) findViewById(android.R.id.list));
 		listView_.setEmptyView(findViewById(android.R.id.empty));
 
+		// Check weather activity launch from notification...
+		Bundle extras = getIntent().getExtras();
+		isNewLabelRequired_ = extras != null && extras.getBoolean(GcmIntentService.EXTRA_NEW_LABEL_REQUIRED);
 		try {
 			ViewConfiguration config = ViewConfiguration.get(this);
 			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -157,6 +161,7 @@ public class MainActivity extends ActionBarActivity {
 				holder.textViewYesterdayAllowed = (TextView) v.findViewById(R.id.textViewYesterdayAllowed);
 				holder.textViewWeekBlocked = (TextView) v.findViewById(R.id.textViewWeekBlocked);
 				holder.textViewWeekAllowed = (TextView) v.findViewById(R.id.textViewWeekAllowed);
+				holder.textViewNew = (TextView) v.findViewById(R.id.textViewNew);
 				// associate the holder with the view for later lookup
 				v.setTag(holder);
 			} else {
@@ -174,6 +179,13 @@ public class MainActivity extends ActionBarActivity {
 			holder.textViewYesterdayAllowed.setText(String.valueOf(site.getYesterdayAllowed()));
 			holder.textViewYesterdayBlocked.setText(String.valueOf(site.getYesterdayBlocked()));
 
+			if (isNewLabelRequired_ && site.getTodayAllowed() > 0) {
+				holder.textViewNew.setText(String.valueOf(site.getTodayAllowed()));
+				holder.textViewNew.setVisibility(View.VISIBLE);
+			} else {
+				holder.textViewNew.setVisibility(View.GONE);
+			}
+
 			OnClickListener onCountClickListener = new OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -188,6 +200,7 @@ public class MainActivity extends ActionBarActivity {
 						intent.putExtra(SiteActivity.EXTRA_REQUEST_TYPE, v.getId());
 						intent.putExtra(SiteActivity.EXTRA_SITE_NAME, site.getSiteName());
 						intent.putExtra(SiteActivity.EXTRA_SITE_ID, site.getSiteId());
+						isNewLabelRequired_ = false;
 						startActivity(intent);
 					default:
 						return;
@@ -215,7 +228,7 @@ public class MainActivity extends ActionBarActivity {
 			TextView textViewYesterdayAllowed;
 			TextView textViewWeekBlocked;
 			TextView textViewWeekAllowed;
-
+			TextView textViewNew;
 		}
 
 		@Override

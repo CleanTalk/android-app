@@ -13,7 +13,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,7 +34,6 @@ import android.widget.ViewSwitcher;
  */
 public class LoginActivity extends Activity {
 
-	private static final String TAG = LoginActivity.class.getSimpleName();
 	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
 	/**

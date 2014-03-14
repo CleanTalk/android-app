@@ -3,6 +3,6 @@
     android:innerRadius="5dp"
     android:shape="oval" >
 
-    <solid android:color="#99ff0000" />
+    <solid android:color="#88ff0000" />
 
 </shape>

@@ -13,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.res.Resources;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -29,8 +28,8 @@ public class ServicesRequest extends Request<JSONArray> {
 	private static final int RESULT_SUCCESS = 1;
 	private UrlEncodedFormEntity entity_;
 	private final Listener<JSONArray> listener_;
-	private final Context context_ ;
-	
+	private final Context context_;
+
 	public ServicesRequest(Context context, String url, String appSessionId, Listener<JSONArray> listener, ErrorListener errorListener) {
 		super(Method.POST, url, errorListener);
 		listener_ = listener;
@@ -50,7 +49,7 @@ public class ServicesRequest extends Request<JSONArray> {
 			String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
 			JSONObject result = new JSONObject(jsonString);
 			int resultCode = result.getInt("auth");
-			if(resultCode == RESULT_SUCCESS){
+			if (resultCode == RESULT_SUCCESS) {
 				return Response.success(result.getJSONArray("services"), HttpHeaderParser.parseCacheHeaders(response));
 			} else {
 				VolleyError error = new VolleyError(context_.getString(R.string.auth_error));

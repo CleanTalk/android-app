@@ -20,8 +20,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 public class ServiceApi {
-	private static final String TAG = ServiceApi.class.getSimpleName();
-
 	private static final String PROPERTY_SESSION = "PROPERTY_SESSION";
 
 	private static final String HOST = "https://cleantalk.org";
