@@ -58,4 +58,12 @@
         <item name="android:src">@drawable/ic_menu_moreoverflow</item>
     </style>
 
+    <style name="TextViewNew" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:background">@drawable/new_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textSize">5pt</item>
+    </style>
+
 </resources>

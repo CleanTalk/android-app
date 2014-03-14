@@ -9,7 +9,7 @@
     android:paddingRight="8dp"
     android:paddingTop="4dp" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
@@ -17,20 +17,31 @@
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/imageViewLogo"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:padding="4dp" />
 
         <TextView
             android:id="@+id/textViewSiteName"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/imageViewLogo"
             android:drawablePadding="4dp"
-            android:textStyle="bold"
-            android:textColor="@color/text_color"
             android:text="wordpress.org"
-            android:textSize="9pt" />
-    </LinearLayout>
+            android:textColor="@color/text_color"
+            android:textSize="9pt"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textViewNew"
+            style="@style/TextViewNew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/textViewSiteName"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <TableLayout
         android:layout_width="match_parent"
