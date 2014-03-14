@@ -26,7 +26,7 @@ public class AuthRequest extends Request<String> {
 	private UrlEncodedFormEntity entity_;
 	private final Listener<String> listener_;
 
-	public AuthRequest(String url, String login, String password, String deviceId, String appSenderId, Listener<String> listener,
+	public AuthRequest(String url, String login, String password, String appSenderId, String deviceId, Listener<String> listener,
 			ErrorListener errorListener) {
 		super(Method.POST, url, errorListener);
 		listener_ = listener;
