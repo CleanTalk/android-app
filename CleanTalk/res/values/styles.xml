@@ -6,6 +6,8 @@
         <item name="android:editTextStyle">@style/EditTextTheme</item>
         <item name="actionBarStyle">@style/ActionBarCompat</item>
         <item name="android:actionBarStyle" tools:ignore="NewApi">@style/ActionBarCompat</item>
+        <item name="android:actionOverflowButtonStyle" tools:targetApi="11">@style/ActionButtonOverflow</item>
+        <item name="actionOverflowButtonStyle">@style/ActionButtonOverflow</item>
     </style>
 
     <style name="AppTheme.NoTitleBar" parent="@style/AppTheme">
@@ -50,6 +52,10 @@
 
     <style name="titleStyle" parent="@style/TextAppearance.AppCompat.Widget.Base.ActionBar.Title">
         <item name="android:textColor">@color/text_color</item>
+    </style>
+
+    <style name="ActionButtonOverflow" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_menu_moreoverflow</item>
     </style>
 
 </resources>

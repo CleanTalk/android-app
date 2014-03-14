@@ -1,7 +1,7 @@
 <resources>
 
-    <color name="text_color">#349ebf</color>
-    <color name="spam_count_label">#FF7094</color>
-    <color name="allowed_count_label">#2EB800</color>
+    <color name="text_color">#11617C</color>
+    <color name="spam_count_label">#A62445</color>
+    <color name="allowed_count_label">#3B8A23</color>
 
 </resources>

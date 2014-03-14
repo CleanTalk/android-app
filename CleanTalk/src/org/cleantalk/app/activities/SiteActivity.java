@@ -9,12 +9,6 @@ import org.cleantalk.app.model.Request;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.VolleyError;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,6 +28,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+
 public class SiteActivity extends ActionBarActivity {
 
 	protected static final String EXTRA_REQUEST_TYPE = "EXTRA_REQUEST_TYPE";
@@ -43,14 +43,14 @@ public class SiteActivity extends ActionBarActivity {
 	private ServiceApi serviceApi_;
 	private ListView listView_;
 
-	private Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
+	private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
 		@Override
 		public void onResponse(JSONArray response) {
 			loadRequests(response);
 			hideProgress();
 		}
 	};
-	private ErrorListener errorListener_ = new ErrorListener() {
+	private final ErrorListener errorListener_ = new ErrorListener() {
 		@Override
 		public void onErrorResponse(VolleyError error) {
 			if (error instanceof AuthFailureError) {
@@ -237,7 +237,11 @@ public class SiteActivity extends ActionBarActivity {
 				holder.textViewStatus.setTextColor(getResources().getColor(R.color.spam_count_label));
 			}
 
-			holder.textViewMessage.setText(Html.fromHtml(request.getMessage()));
+			if(request.getMessage().equals("null")){
+				holder.textViewMessage.setVisibility(View.GONE);
+			} else {
+				holder.textViewMessage.setText(Html.fromHtml(request.getMessage()));
+			}
 			return v;
 		}
 
