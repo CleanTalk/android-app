@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.cleantalk.app.api.ServiceApi;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -13,6 +11,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 
@@ -39,8 +39,8 @@ public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 	 * 
 	 * @return registration ID, or empty string if there is no existing registration ID.
 	 */
-	private String getRegistrationId(Context context) {
-		final SharedPreferences prefs = getPreferences();
+	private static String getRegistrationId(Context context) {
+		final SharedPreferences prefs = getPreferences(context);
 		String registrationId = prefs.getString(PROPERTY_GCM_REG_ID, "");
 		if (TextUtils.isEmpty(registrationId)) {
 			Log.i(TAG, "Registration not found.");
@@ -50,7 +50,7 @@ public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 		// since the existing regID is not guaranteed to work with the new
 		// app version.
 		int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-		int currentVersion = getAppVersion();
+		int currentVersion = getAppVersion(context);
 		if (registeredVersion != currentVersion) {
 			Log.i(TAG, "App version changed.");
 			return "";
@@ -66,9 +66,9 @@ public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 	 * @param regId
 	 *            registration ID
 	 */
-	private void setRegistrationId(String regId) {
-		final SharedPreferences prefs = getPreferences();
-		int appVersion = getAppVersion();
+	private static void setRegistrationId(Context context, String regId) {
+		final SharedPreferences prefs = getPreferences(context);
+		int appVersion = getAppVersion(context);
 		Log.i(TAG, "Saving regId on app version " + appVersion);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString(PROPERTY_GCM_REG_ID, regId);
@@ -79,9 +79,9 @@ public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 	/**
 	 * @return Application's version code from the {@code PackageManager}.
 	 */
-	private int getAppVersion() {
+	private static int getAppVersion(Context context) {
 		try {
-			PackageInfo packageInfo = context_.getPackageManager().getPackageInfo(context_.getPackageName(), 0);
+			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 			return packageInfo.versionCode;
 		} catch (NameNotFoundException e) {
 			// should never happen
@@ -96,13 +96,21 @@ public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 		}
 		try {
 			registrationId_ = gcm_.register(SENDER_ID);
-			setRegistrationId(registrationId_);
+			setRegistrationId(context_, registrationId_);
 		} catch (IOException ex) {
 		}
 		return registrationId_;
 	}
 
-	private SharedPreferences getPreferences() {
-		return context_.getSharedPreferences(ServiceApi.class.getSimpleName(), Context.MODE_PRIVATE);
+	private static SharedPreferences getPreferences(Context context) {
+		return context.getSharedPreferences(ServiceApi.class.getSimpleName(), Context.MODE_PRIVATE);
+	}
+
+	public static void clearRegistrationId(Context context) {
+		final SharedPreferences prefs = getPreferences(context);
+		int appVersion = getAppVersion(context);
+		Log.i(TAG, "Saving regId on app version " + appVersion);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.remove(PROPERTY_GCM_REG_ID).remove(PROPERTY_APP_VERSION).commit();
 	}
 }

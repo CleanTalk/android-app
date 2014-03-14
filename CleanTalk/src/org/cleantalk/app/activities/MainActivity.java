@@ -9,13 +9,6 @@ import org.cleantalk.app.model.Site;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.NetworkImageView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
@@ -36,13 +29,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.NetworkImageView;
+
 public class MainActivity extends ActionBarActivity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private ServiceApi serviceApi_;
 	private ListView listView_;
 
-	private Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
+	private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
 		@Override
 		public void onResponse(JSONArray response) {
 			loadSites(response);
@@ -50,7 +50,7 @@ public class MainActivity extends ActionBarActivity {
 		}
 	};
 
-	private ErrorListener errorListener_ = new ErrorListener() {
+	private final ErrorListener errorListener_ = new ErrorListener() {
 		@Override
 		public void onErrorResponse(VolleyError error) {
 			if (error instanceof AuthFailureError) {
@@ -96,6 +96,7 @@ public class MainActivity extends ActionBarActivity {
 		View progressView = findViewById(R.id.progress);
 		final AnimationDrawable animation = (AnimationDrawable) progressView.getBackground();
 		progressView.post(new Runnable() {
+			@Override
 			public void run() {
 				animation.start();
 			}
@@ -112,6 +113,7 @@ public class MainActivity extends ActionBarActivity {
 		progressView.setVisibility(View.GONE);
 		final AnimationDrawable animation = (AnimationDrawable) progressView.getBackground();
 		progressView.post(new Runnable() {
+			@Override
 			public void run() {
 				animation.stop();
 			}
@@ -262,6 +264,7 @@ public class MainActivity extends ActionBarActivity {
 			return true;
 		case R.id.action_logout:
 			startActivity(new Intent(MainActivity.this, LoginActivity.class));
+			ServiceApi.getInstance(this).logout();
 			finish();
 			return true;
 		default:

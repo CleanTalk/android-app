@@ -1,6 +1,7 @@
 package org.cleantalk.app.api;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.gcm.GcmSenderIdRecieverTask;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
@@ -120,11 +121,16 @@ public class ServiceApi {
 
 	private void setAppSessionId(String appSessionId) {
 		if (appSessionId == null) {
-			return;
+			getPreferences().edit().remove(PROPERTY_SESSION).commit();
+		} else {
+			String initialisationVector = Utils.getDeviceId(context_);
+			String eAppSessionId = Utils.AES128Encrypt(appSessionId, initialisationVector, initialisationVector);
+			getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
 		}
-		String initialisationVector = Utils.getDeviceId(context_);
-		String eAppSessionId = Utils.AES128Encrypt(appSessionId, initialisationVector, initialisationVector);
-		getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
 	}
 
+	public void logout() {
+		setAppSessionId(null);
+		GcmSenderIdRecieverTask.clearRegistrationId(context_);
+	}
 }
