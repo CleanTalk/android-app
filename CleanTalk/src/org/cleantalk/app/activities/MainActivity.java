@@ -11,13 +11,16 @@ import org.cleantalk.app.model.Site;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,7 +49,6 @@ public class MainActivity extends ActionBarActivity {
 		public void onResponse(JSONArray response) {
 			loadSites(response);
 			hideProgress();
-			// findViewById(R.id.hintView).setVisibility(View.VISIBLE);
 		}
 	};
 
@@ -66,7 +68,14 @@ public class MainActivity extends ActionBarActivity {
 	private ServiceApi serviceApi_;
 	private ListView listView_;
 	private boolean doubleBackToExitPressedOnce_;
-	private boolean isNewLabelRequired_;
+	public static boolean active = false;
+	private final BroadcastReceiver updateReceiver_ = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			showProgress();
+			serviceApi_.requestServices(responseListener_, errorListener_);
+		}
+	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +87,6 @@ public class MainActivity extends ActionBarActivity {
 		listView_.setEmptyView(findViewById(android.R.id.empty));
 
 		// Check weather activity launch from notification...
-		Bundle extras = getIntent().getExtras();
-		isNewLabelRequired_ = extras != null && extras.getBoolean(GcmIntentService.EXTRA_NEW_LABEL_REQUIRED);
 		try {
 			ViewConfiguration config = ViewConfiguration.get(this);
 			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -94,9 +101,19 @@ public class MainActivity extends ActionBarActivity {
 
 	@Override
 	protected void onResume() {
-		serviceApi_.requestServices(responseListener_, errorListener_);
 		showProgress();
+		serviceApi_.requestServices(responseListener_, errorListener_);
+		IntentFilter filter = new IntentFilter(GcmIntentService.ACTION_UPDATE);
+		LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(updateReceiver_, filter);
+		active = true;
 		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(updateReceiver_);
+		 active = false;
+		super.onPause();
 	}
 
 	private void showProgress() {
@@ -182,8 +199,10 @@ public class MainActivity extends ActionBarActivity {
 			holder.textViewYesterdayAllowed.setText(String.valueOf(site.getYesterdayAllowed()));
 			holder.textViewYesterdayBlocked.setText(String.valueOf(site.getYesterdayBlocked()));
 
-			if (isNewLabelRequired_ && site.getTodayAllowed() > 0) {
-				holder.textViewNew.setText(String.valueOf(site.getTodayAllowed()));
+			int today = site.getTodayAllowed();
+			int notified = getTodayNotified(site.getSiteId());
+			if (today - notified > 0) {
+				holder.textViewNew.setText(String.valueOf(today - notified));
 				holder.textViewNew.setVisibility(View.VISIBLE);
 			} else {
 				holder.textViewNew.setVisibility(View.GONE);
@@ -203,7 +222,7 @@ public class MainActivity extends ActionBarActivity {
 						intent.putExtra(SiteActivity.EXTRA_REQUEST_TYPE, v.getId());
 						intent.putExtra(SiteActivity.EXTRA_SITE_NAME, site.getSiteName());
 						intent.putExtra(SiteActivity.EXTRA_SITE_ID, site.getSiteId());
-						isNewLabelRequired_ = false;
+						setTodayNotified(site.getSiteId(), site.getTodayAllowed());
 						startActivity(intent);
 					default:
 						return;
@@ -304,16 +323,19 @@ public class MainActivity extends ActionBarActivity {
 		}, 2000);
 	}
 
-	private void setTodayNotified(long serviceId, int todayAllowedNotified) {
-		getPreferences(MODE_PRIVATE).edit().putInt("notified" + String.valueOf(serviceId), todayAllowedNotified)
-				.putLong("time" + String.valueOf(serviceId), (new Date()).getTime());
+	private void setTodayNotified(String siteId, int todayAllowedNotified) {
+		getPreferences(MODE_PRIVATE)
+			.edit()
+			.putInt("notified" + siteId, todayAllowedNotified)
+			.putLong("time" + siteId, (new Date()).getTime())
+			.commit();
 	}
 
-	private int getTodayNotified(long serviceId) {
+	private int getTodayNotified(String siteId) {
 		SharedPreferences pref = getPreferences(MODE_PRIVATE);
-		int notified = pref.getInt("notified" + String.valueOf(serviceId), -1);
-		long time = pref.getLong("time" + String.valueOf(serviceId), -1);
-		if (((new Date()).getTime() - time) < 86400000) {
+		int notified = pref.getInt("notified" + siteId, -1);
+		long time = pref.getLong("time" + siteId, -1);
+		if (((new Date()).getTime() - time) < 86_400_000) {
 			return notified;
 		} else {
 			return 0;
