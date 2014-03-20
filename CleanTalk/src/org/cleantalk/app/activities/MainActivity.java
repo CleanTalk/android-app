@@ -44,7 +44,7 @@ public class MainActivity extends ActionBarActivity {
 		public void onResponse(JSONArray response) {
 			loadSites(response);
 			hideProgress();
-			findViewById(R.id.hintView).setVisibility(View.VISIBLE);
+//			findViewById(R.id.hintView).setVisibility(View.VISIBLE);
 		}
 	};
 

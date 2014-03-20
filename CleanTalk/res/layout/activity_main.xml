@@ -1,12 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:custom="http://schemas.android.com/apk/res/org.cleantalk.app"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity" >
 
-    <org.cleantalk.app.views.ClipperView
+<!--     <org.cleantalk.app.views.ClipperView
         android:id="@+id/hintView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,7 +14,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:visibility="visible"
-        custom:focusingView="@+id/textViewTodayBlocked" />
+        custom:focusingView="@+id/textViewTodayBlocked" /> -->
 
     <View
         android:id="@+id/progress"
