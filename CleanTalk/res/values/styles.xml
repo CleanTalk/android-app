@@ -67,7 +67,7 @@
         <item name="android:padding">1dp</item>
         <item name="android:minWidth">14dp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">#fff</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">5pt</item>
     </style>
 
