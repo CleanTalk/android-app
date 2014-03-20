@@ -36,6 +36,9 @@
         <item name="android:padding">8dp</item>
         <item name="android:textSize">8pt</item>
         <item name="android:gravity">center</item>
+    </style>
+
+    <style name="tableRowItemLink" parent="tableRowItem">
         <item name="android:background">@drawable/row_item_bg</item>
     </style>
 

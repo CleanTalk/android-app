@@ -65,7 +65,7 @@
 
             <TextView
                 android:id="@+id/textViewTodayAllowed"
-                style="@style/tableRowItem"
+                style="@style/tableRowItemLink"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -74,7 +74,7 @@
 
             <TextView
                 android:id="@+id/textViewTodayBlocked"
-                style="@style/tableRowItem"
+                style="@style/tableRowItemLink"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -96,7 +96,7 @@
 
             <TextView
                 android:id="@+id/textViewYesterdayAllowed"
-                style="@style/tableRowItem"
+                style="@style/tableRowItemLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -105,7 +105,7 @@
 
             <TextView
                 android:id="@+id/textViewYesterdayBlocked"
-                style="@style/tableRowItem"
+                style="@style/tableRowItemLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -127,7 +127,7 @@
 
             <TextView
                 android:id="@+id/textViewWeekAllowed"
-                style="@style/tableRowItem"
+                style="@style/tableRowItemLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
@@ -136,7 +136,7 @@
 
             <TextView
                 android:id="@+id/textViewWeekBlocked"
-                style="@style/tableRowItem"
+                style="@style/tableRowItemLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="true"
