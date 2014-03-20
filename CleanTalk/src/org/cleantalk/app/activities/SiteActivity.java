@@ -226,7 +226,11 @@ public class SiteActivity extends ActionBarActivity {
 
 			Request request = getItem(position);
 			holder.textViewTime.setText(request.getDatetime());
-			holder.textViewSender.setText(request.getSenderNickname() + " (" + request.getSenderEmail() + ")");
+			if(request.getSenderEmail().equals("null")){
+				holder.textViewSender.setText(request.getSenderNickname());
+			} else {
+				holder.textViewSender.setText(request.getSenderNickname() + " (" + request.getSenderEmail()+ ")" );
+			}
 			holder.textViewType.setText(request.getType());
 
 			if (request.isAllow()) {
