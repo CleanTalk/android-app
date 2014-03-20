@@ -1,6 +1,7 @@
 package org.cleantalk.app.activities;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.List;
 
 import org.cleantalk.app.R;
@@ -12,6 +13,7 @@ import org.json.JSONArray;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
 		public void onResponse(JSONArray response) {
 			loadSites(response);
 			hideProgress();
-//			findViewById(R.id.hintView).setVisibility(View.VISIBLE);
+			// findViewById(R.id.hintView).setVisibility(View.VISIBLE);
 		}
 	};
 
@@ -300,5 +302,21 @@ public class MainActivity extends ActionBarActivity {
 				doubleBackToExitPressedOnce_ = false;
 			}
 		}, 2000);
+	}
+
+	private void setTodayNotified(long serviceId, int todayAllowedNotified) {
+		getPreferences(MODE_PRIVATE).edit().putInt("notified" + String.valueOf(serviceId), todayAllowedNotified)
+				.putLong("time" + String.valueOf(serviceId), (new Date()).getTime());
+	}
+
+	private int getTodayNotified(long serviceId) {
+		SharedPreferences pref = getPreferences(MODE_PRIVATE);
+		int notified = pref.getInt("notified" + String.valueOf(serviceId), -1);
+		long time = pref.getLong("time" + String.valueOf(serviceId), -1);
+		if (((new Date()).getTime() - time) < 86400000) {
+			return notified;
+		} else {
+			return 0;
+		}
 	}
 }
