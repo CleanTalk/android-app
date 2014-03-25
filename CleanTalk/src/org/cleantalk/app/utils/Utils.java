@@ -3,9 +3,15 @@ package org.cleantalk.app.utils;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -14,6 +20,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Request;
 import org.cleantalk.app.model.Site;
 import org.json.JSONArray;
@@ -21,9 +29,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.provider.Settings.Secure;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class Utils {
+
+	private static final String PREFERENCES = "preferences";
+	private static final String PREFERENCE_UPDATE_TIMES = "update_times";
+	public enum ToastType { Error, Info }
 
 	public static String getDeviceId(Context context) {
 		return Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
@@ -60,23 +77,8 @@ public class Utils {
 			out = cipher.doFinal(Base64.decode(value.getBytes()));
 			return new String(out);
 
-		} catch (IllegalBlockSizeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidAlgorithmParameterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			// TODO Auto-generated catch block
+		} catch (NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException
+				| InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -146,38 +148,39 @@ public class Utils {
 		return newArray;
 	}
 
-	public static long getWeekAgoTimestamp() {
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_YEAR, -7);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-
-		return cal.getTimeInMillis() / 1000L;
+	public static long getCurrentTimestamp(TimeZone timezone){
+		return (new Date().getTime() - timezone.getOffset(0)) / 1000L;
 	}
 
-	public static long getTodayTimestamp() {
+	public static long getStartDayTimestamp(TimeZone timezone) {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-
-		return cal.getTimeInMillis() / 1000L;
+		return (cal.getTimeInMillis() - timezone.getOffset(0)) / 1000L;
 	}
 
-	public static long getYesterdayTimestamp() {
+	public static long getDayAgoTimestamp(TimeZone timezone) {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, -1);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-
-		return cal.getTimeInMillis() / 1000L;
+		return (cal.getTimeInMillis() - timezone.getOffset(0)) / 1000L;
 	}
-	
+
+	public static long getWeekAgoTimestamp(TimeZone timezone) {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_YEAR, -7);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return (cal.getTimeInMillis() - timezone.getOffset(0)) / 1000L;
+	}
+
 	public static List<Site> parseSites(JSONArray array) {
 		List<Site> result = new ArrayList<Site>();
 		int len = array.length();
@@ -187,23 +190,16 @@ public class Utils {
 			try {
 				obj = array.getJSONObject(i);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Site site = null;
 			try {
 				site = new Site(
-						obj.getString("servicename"),
 						obj.getString("service_id"),
-						obj.getString("favicon_url"),
-						obj.getJSONObject("today").getInt("spam"),
-						obj.getJSONObject("today").getInt("allow"),
-						obj.getJSONObject("yesterday").getInt("spam"),
-						obj.getJSONObject("yesterday").getInt("allow"),
-						obj.getJSONObject("week").getInt("spam"), 
-						obj.getJSONObject("week").getInt("allow"));
+						obj.getString("servicename"),
+						obj.getString("hostname"),
+						obj.getString("favicon_url"));
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			result.add(site);
@@ -211,8 +207,8 @@ public class Utils {
 		}
 		return result;
 	}
-	
-	public static List<Request> parseRequests(JSONArray array) {
+
+	public static List<Request> parseRequests(Context context, JSONArray array) {
 		List<Request> result = new ArrayList<Request>();
 		int len = array.length();
 
@@ -221,7 +217,6 @@ public class Utils {
 			try {
 				obj = array.getJSONObject(i);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			Request site = null;
@@ -229,18 +224,62 @@ public class Utils {
 				site = new Request(
 						obj.getString("request_id"),
 						obj.getInt("allow")==1,
-						obj.getString("datetime"),
+						parseDateToTimestamp(context, obj.getString("datetime")),
 						obj.getString("sender_email"),
 						obj.getString("sender_nickname"),
 						obj.getString("type"),
 						obj.getString("message"));
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
+			} catch (JSONException | ParseException e) {
 				e.printStackTrace();
 			}
 			result.add(site);
 
 		}
 		return result;
+	}
+
+	public static SharedPreferences getPreferences(Context context) {
+		return getPreferences(context, PREFERENCES);
+	}
+
+	public static SharedPreferences getPreferences(Context context, String prefName) {
+		return context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+	}
+	
+	public static void setLastUpdatedTime(Context context, String serviceId, long time) {
+		Utils.getPreferences(context, PREFERENCE_UPDATE_TIMES).edit().putLong("time" + serviceId, time).commit();
+	}
+	public static long getLastUpdatedTime(Context context, String serviceId) {
+		SharedPreferences pref = Utils.getPreferences(context, PREFERENCE_UPDATE_TIMES);
+		long time = pref.getLong("time" + serviceId, -1);
+		return time;
+	}
+	public static void cleanLastUpdatedTime(Context context) {
+		Utils.getPreferences(context, PREFERENCE_UPDATE_TIMES).edit().clear().commit();
+	}
+
+	public static long parseDateToTimestamp(Context context, String dateStr) throws ParseException {
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		formatter.setTimeZone(ServiceApi.getInstance(context).getTimezone());
+		Date date = formatter.parse(dateStr);
+		return date.getTime() / 1000;
+	}
+
+	public static Toast makeToast(Context context, String text, ToastType type) {
+		TextView textview = (TextView) LayoutInflater.from(context).inflate(R.layout.layout_toast, null);
+		textview.setText(text);
+		switch (type) {
+		case Error:
+			textview.setBackgroundResource(R.drawable.toast_error_bg);
+			break;
+		case Info:
+			textview.setBackgroundResource(R.drawable.toast_bg);
+			break;
+		}
+		Toast toast = new Toast(context);
+		toast.setView(textview);
+		toast.setDuration(Toast.LENGTH_SHORT);
+		toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 100);
+		return toast;
 	}
 }

@@ -2,8 +2,7 @@ package org.cleantalk.app.gcm;
 
 import org.cleantalk.app.R;
 import org.cleantalk.app.activities.MainActivity;
-
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import org.cleantalk.app.activities.SiteActivity;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -13,6 +12,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class GcmIntentService extends IntentService {
 
@@ -33,7 +34,7 @@ public class GcmIntentService extends IntentService {
 
 		if (!extras.isEmpty()) {
 			if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-				if (MainActivity.active) {
+				if (MainActivity.active || SiteActivity.active) {
 					LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(ACTION_UPDATE));
 				} else {
 					String message = extras.getString("message");

@@ -1,7 +1,10 @@
 package org.cleantalk.app.api;
 
+import java.util.TimeZone;
+
 import org.cleantalk.app.R;
 import org.cleantalk.app.gcm.GcmSenderIdRecieverTask;
+import org.cleantalk.app.provider.Contract;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
@@ -21,6 +24,7 @@ import com.android.volley.toolbox.Volley;
 
 public class ServiceApi {
 	private static final String PROPERTY_SESSION = "PROPERTY_SESSION";
+	private static final String PROPERTY_TIMEZONE = "PROPERTY_TIMEZONE";
 
 	private static final String HOST = "https://cleantalk.org";
 	private static final String AUTH_URI = HOST + "/my/session?app_mode=1";
@@ -83,29 +87,6 @@ public class ServiceApi {
 		requestQueue_.add(request);
 	}
 
-	public void requestServices(Listener<JSONArray> listener, ErrorListener errorListener) {
-		String appSessionId = getAppSessionId();
-		if (TextUtils.isEmpty(appSessionId)) {
-			AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
-			errorListener.onErrorResponse(error);
-			return;
-		}
-		ServicesRequest request = new ServicesRequest(context_, SERVICES_URI, appSessionId, listener, errorListener);
-		requestQueue_.add(request);
-	}
-
-	public void requestRequests(String siteId, long startFrom, int allow, Listener<JSONArray> listener, ErrorListener errorListener) {
-		String appSessionId = getAppSessionId();
-		if (TextUtils.isEmpty(appSessionId)) {
-			AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
-			errorListener.onErrorResponse(error);
-			return;
-		}
-		RequestsRequest request = new RequestsRequest(context_, REQUESTS_URI, appSessionId, siteId, startFrom, allow, listener,
-				errorListener);
-		requestQueue_.add(request);
-	}
-
 	private SharedPreferences getPreferences() {
 		return context_.getSharedPreferences(ServiceApi.class.getSimpleName(), Context.MODE_PRIVATE);
 	}
@@ -127,8 +108,60 @@ public class ServiceApi {
 		}
 	}
 
+	public TimeZone getTimezone() {
+		String timezone = getPreferences().getString(PROPERTY_TIMEZONE, null);
+		if (timezone != null) {
+			return TimeZone.getTimeZone(timezone);
+		} else {
+			return TimeZone.getDefault();
+		}
+	}
+
+	public void setTimezone(TimeZone timezone) {
+		getPreferences().edit().putString(PROPERTY_TIMEZONE, timezone.getID()).commit();
+	}
+
 	public void logout() {
 		setAppSessionId(null);
+		Utils.cleanLastUpdatedTime(context_);
+		GcmSenderIdRecieverTask.clearRegistrationId(context_);
+		context_.getContentResolver().delete(Contract.Requests.CONTENT_URI, null, null);
+		context_.getContentResolver().delete(Contract.Sites.CONTENT_URI, null, null);
 		GcmSenderIdRecieverTask.clearRegistrationId(context_);
 	}
+
+	/**
+	 * Request list of request from service and put it on JSONArray object
+	 * 
+	 * @param errorListener
+	 * @param serviceId
+	 *            - service id parameter for request
+	 * @param lastUpdateTime
+	 *            - timestamp of latest update in seconds
+	 * @return
+	 */
+	public void getRequests(Listener<JSONArray> listener, ErrorListener errorListener, String serviceId, Long lastUpdateTime) {
+		String appSessionId = getAppSessionId();
+		if (TextUtils.isEmpty(appSessionId)) {
+			AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
+			errorListener.onErrorResponse(error);
+			return;
+		}
+		RequestsRequest requestsRequest = new RequestsRequest(context_, REQUESTS_URI, appSessionId, serviceId,
+				(lastUpdateTime > 0) ? lastUpdateTime : Utils.getWeekAgoTimestamp(ServiceApi.getInstance(context_).getTimezone()), -1,
+				listener, errorListener);
+		requestQueue_.add(requestsRequest);
+	}
+
+	public void getServices(Listener<JSONArray> listener, ErrorListener errorListener) {
+		String appSessionId = getAppSessionId();
+		if (TextUtils.isEmpty(appSessionId)) {
+			AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
+			errorListener.onErrorResponse(error);
+			return;
+		}
+		ServicesRequest request = new ServicesRequest(context_, SERVICES_URI, appSessionId, listener, errorListener);
+		requestQueue_.add(request);
+	}
+
 }

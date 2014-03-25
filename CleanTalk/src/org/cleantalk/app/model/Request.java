@@ -3,13 +3,13 @@ package org.cleantalk.app.model;
 public class Request {
 	private final String requestId_;
 	private final boolean allow_;
-	private final String datetime_;
+	private final long datetime_;
 	private final String senderEmail_;
 	private final String senderNickname_;
 	private final String type_;
 	private final String message_;
 
-	public Request(String requestId, boolean allow, String datetime, String senderEmail, String senderNickname, String type, String message) {
+	public Request(String requestId, boolean allow, long datetime, String senderEmail, String senderNickname, String type, String message) {
 		requestId_ = requestId;
 		allow_ = allow;
 		datetime_ = datetime;
@@ -27,7 +27,7 @@ public class Request {
 		return allow_;
 	}
 
-	public String getDatetime() {
+	public long getDatetime() {
 		return datetime_;
 	}
 

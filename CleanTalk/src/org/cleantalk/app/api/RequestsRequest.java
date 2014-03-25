@@ -39,7 +39,9 @@ public class RequestsRequest extends Request<JSONArray> {
 		values.add(new BasicNameValuePair("app_session_id", appSessionId));
 		values.add(new BasicNameValuePair("service_id", siteId));
 		values.add(new BasicNameValuePair("start_from", String.valueOf(startFrom)));
-		values.add(new BasicNameValuePair("allow", String.valueOf(allow)));
+		if (allow >= 0) {
+			values.add(new BasicNameValuePair("allow", String.valueOf(allow)));
+		}
 		try {
 			entity_ = new UrlEncodedFormEntity(values, "UTF-8");
 		} catch (UnsupportedEncodingException e) {

@@ -108,8 +108,6 @@ public class GcmSenderIdRecieverTask extends AsyncTask<Void, Void, String> {
 
 	public static void clearRegistrationId(Context context) {
 		final SharedPreferences prefs = getPreferences(context);
-		int appVersion = getAppVersion(context);
-		Log.i(TAG, "Saving regId on app version " + appVersion);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.remove(PROPERTY_GCM_REG_ID).remove(PROPERTY_APP_VERSION).commit();
 	}

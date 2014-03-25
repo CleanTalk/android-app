@@ -67,7 +67,7 @@
         android:layout_alignParentTop="true"
         android:gravity="center"
         android:text="@string/no_data"
-        android:textColor="#99349ebf"
+        android:textColor="@color/text_light"
         android:textSize="9pt" />
 
 </RelativeLayout>
