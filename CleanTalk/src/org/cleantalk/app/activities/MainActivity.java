@@ -246,12 +246,24 @@ public class MainActivity extends ActionBarActivity {
 				}
 			};
 
-			holder.textViewTodayAllowed.setOnClickListener(onCountClickListener);
-			holder.textViewTodayBlocked.setOnClickListener(onCountClickListener);
-			holder.textViewWeekAllowed.setOnClickListener(onCountClickListener);
-			holder.textViewWeekBlocked.setOnClickListener(onCountClickListener);
-			holder.textViewYesterdayAllowed.setOnClickListener(onCountClickListener);
-			holder.textViewYesterdayBlocked.setOnClickListener(onCountClickListener);
+			if (site.getTodayAllowed() > 0) {
+				holder.textViewTodayAllowed.setOnClickListener(onCountClickListener);
+			}
+			if (site.getTodayBlocked() > 0) {
+				holder.textViewTodayBlocked.setOnClickListener(onCountClickListener);
+			}
+			if (site.getYesterdayAllowed() > 0) {
+				holder.textViewYesterdayAllowed.setOnClickListener(onCountClickListener);
+			}
+			if (site.getYesterdayBlocked() > 0) {
+				holder.textViewYesterdayBlocked.setOnClickListener(onCountClickListener);
+			}
+			if (site.getWeekAllowed() > 0) {
+				holder.textViewWeekAllowed.setOnClickListener(onCountClickListener);
+			}
+			if (site.getWeekBlocked() > 0) {
+				holder.textViewWeekBlocked.setOnClickListener(onCountClickListener);
+			}
 
 			return v;
 		}
