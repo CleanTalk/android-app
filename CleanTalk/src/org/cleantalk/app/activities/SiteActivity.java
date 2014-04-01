@@ -26,13 +26,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-import com.google.android.gms.internal.en;
 
 public class SiteActivity extends ActionBarActivity {
 
@@ -43,6 +43,7 @@ public class SiteActivity extends ActionBarActivity {
 
 	private ServiceApi serviceApi_;
 	private ListView listView_;
+	private Toast toast_;
 
 	private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
 		@Override
@@ -58,7 +59,8 @@ public class SiteActivity extends ActionBarActivity {
 				startActivity(new Intent(SiteActivity.this, LoginActivity.class));
 				finish();
 			} else if (error instanceof NetworkError) {
-				Utils.makeToast(SiteActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
+				toast_ = Utils.makeToast(SiteActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
+				toast_.show();
 			}
 			hideProgress();
 		}
@@ -254,6 +256,7 @@ public class SiteActivity extends ActionBarActivity {
 			if (request.getMessage().equals("null")) {
 				holder.textViewMessage.setVisibility(View.GONE);
 			} else {
+				holder.textViewMessage.setVisibility(View.VISIBLE);
 				holder.textViewMessage.setText(Html.fromHtml(request.getMessage()));
 			}
 			return v;

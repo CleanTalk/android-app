@@ -3,14 +3,7 @@ package org.cleantalk.app.activities;
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.gcm.GcmSenderIdRecieverTask;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.NoConnectionError;
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import org.cleantalk.app.utils.Utils;
 
 import android.app.Activity;
 import android.app.Service;
@@ -28,6 +21,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
@@ -190,7 +191,7 @@ public class LoginActivity extends Activity {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private Listener<Boolean> authResultListener = new Listener<Boolean>() {
+	private final Listener<Boolean> authResultListener = new Listener<Boolean>() {
 		@Override
 		public void onResponse(Boolean success) {
 			mAuthTask = null;
@@ -206,19 +207,21 @@ public class LoginActivity extends Activity {
 		}
 	};
 
-	private ErrorListener authErrorListener = new ErrorListener() {
+	
+	
+	private final ErrorListener authErrorListener = new ErrorListener() {
 		@Override
 		public void onErrorResponse(VolleyError error) {
 			mAuthTask = null;
 			showProgress(false);
 			if (error instanceof NoConnectionError) {
-				Toast.makeText(LoginActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
+				Utils.makeToast(LoginActivity.this, getString(R.string.connection_error), Utils.ToastType.Error).show();
 			} else 
 				if (error instanceof AuthFailureError) {
 				mPasswordView.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
 			} else {
-				Toast.makeText(LoginActivity.this, error.getMessage(), Toast.LENGTH_LONG).show();
+				Utils.makeToast(LoginActivity.this,  error.getMessage(), Utils.ToastType.Error).show();
 			}
 		}
 	};

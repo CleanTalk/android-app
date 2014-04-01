@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -41,6 +42,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.NetworkImageView;
 
 public class MainActivity extends ActionBarActivity {
+
+	public static boolean active = false;
 
 	private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
 		@Override
@@ -57,7 +60,8 @@ public class MainActivity extends ActionBarActivity {
 				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			} else if (error instanceof NetworkError) {
-				Utils.makeToast(MainActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
+				toast_ = Utils.makeToast(MainActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
+				toast_.show();
 			}
 			hideProgress();
 		}
@@ -66,7 +70,8 @@ public class MainActivity extends ActionBarActivity {
 	private ServiceApi serviceApi_;
 	private ListView listView_;
 	private boolean doubleBackToExitPressedOnce_;
-	public static boolean active = false;
+	private Toast toast_;
+
 	private final BroadcastReceiver updateReceiver_ = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -322,10 +327,13 @@ public class MainActivity extends ActionBarActivity {
 	public void onBackPressed() {
 		if (doubleBackToExitPressedOnce_) {
 			super.onBackPressed();
+			toast_.cancel();
+			toast_ = null;
 			return;
 		}
 		this.doubleBackToExitPressedOnce_ = true;
-		Utils.makeToast(this, getString(R.string.click_back_again_to_exit), Utils.ToastType.Info);
+		toast_ = Utils.makeToast(this, getString(R.string.click_back_again_to_exit), Utils.ToastType.Info);
+		toast_.show();
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
