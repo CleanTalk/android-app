@@ -32,6 +32,7 @@ import com.android.volley.NetworkError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.google.android.gms.internal.en;
 
 public class SiteActivity extends ActionBarActivity {
 
@@ -65,6 +66,7 @@ public class SiteActivity extends ActionBarActivity {
 	private String siteId_;
 	private int requestType_;
 	private long lastNotified_;
+	private long endTo_ = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -137,10 +139,12 @@ public class SiteActivity extends ActionBarActivity {
 			break;
 		case R.id.textViewYesterdayAllowed:
 			startFrom = Utils.getYesterdayTimestamp(this);
+			endTo_ = Utils.getTodayTimestamp(this);
 			allow = 1;
 			break;
 		case R.id.textViewYesterdayBlocked:
 			startFrom = Utils.getYesterdayTimestamp(this);
+			endTo_ = Utils.getTodayTimestamp(this);
 			allow = 0;
 			break;
 		case R.id.textViewSiteName:
@@ -299,7 +303,7 @@ public class SiteActivity extends ActionBarActivity {
 	}
 
 	private void loadRequests(JSONArray response) {
-		List<Request> requests = Utils.parseRequests(response);
+		List<Request> requests = Utils.parseRequests(this, response, endTo_);
 		listView_.setAdapter(new RequestAdapter(this, requests));
 	}
 

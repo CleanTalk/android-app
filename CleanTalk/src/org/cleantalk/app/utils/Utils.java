@@ -3,9 +3,14 @@ package org.cleantalk.app.utils;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.crypto.BadPaddingException;
@@ -214,12 +219,12 @@ public class Utils {
 						obj.getString("servicename"),
 						obj.getString("service_id"),
 						obj.getString("favicon_url"),
-						obj.getJSONObject("today").getInt("spam"),
 						obj.getJSONObject("today").getInt("allow"),
-						obj.getJSONObject("yesterday").getInt("spam"),
+						obj.getJSONObject("today").getInt("spam"),
 						obj.getJSONObject("yesterday").getInt("allow"),
-						obj.getJSONObject("week").getInt("spam"), 
-						obj.getJSONObject("week").getInt("allow"));
+						obj.getJSONObject("yesterday").getInt("spam"),
+						obj.getJSONObject("week").getInt("allow"),
+						obj.getJSONObject("week").getInt("spam"));
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -230,7 +235,7 @@ public class Utils {
 		return result;
 	}
 	
-	public static List<Request> parseRequests(JSONArray array) {
+	public static List<Request> parseRequests(Context context, JSONArray array, long endTo_) {
 		List<Request> result = new ArrayList<Request>();
 		int len = array.length();
 
@@ -242,25 +247,36 @@ public class Utils {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Request site = null;
+
 			try {
-				site = new Request(
+				if (endTo_ > 0) {
+					String str_date = obj.getString("datetime");
+					DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+					formatter.setTimeZone(ServiceApi.getInstance(context).getTimezone());
+					Date date = formatter.parse(str_date);
+					if (date.getTime() / 1000 > endTo_) {
+						continue;
+					}
+				}
+				Request request = new Request(
 						obj.getString("request_id"),
-						obj.getInt("allow")==1,
+						obj.getInt("allow") == 1,
 						obj.getString("datetime"),
 						obj.getString("sender_email"),
 						obj.getString("sender_nickname"),
 						obj.getString("type"),
 						obj.getString("message"));
+					result.add(request);
+				
 			} catch (JSONException e) {
 				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			result.add(site);
-
 		}
 		return result;
 	}
-	
 
 	public static Toast makeToast(Context context, String text, ToastType type) {
 		TextView textview = (TextView) LayoutInflater.from(context).inflate(R.layout.layout_toast, null);

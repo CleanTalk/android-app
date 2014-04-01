@@ -28,7 +28,6 @@
             android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/textViewTodayAllowed"
             style="@style/tableRowItem"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
@@ -38,7 +37,6 @@
             android:textColor="@color/allowed_count_label" />
 
         <TextView
-            android:id="@+id/textViewTodayBlocked"
             style="@style/tableRowItem"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
