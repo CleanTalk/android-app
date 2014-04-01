@@ -17,6 +17,11 @@
     <string name="connection_error">Check internet connection and try again.</string>
     <string name="play_services_required">Google Play Services required for notification from the site. Notifications will be disabled.</string>
 
+    <string name="time">Time:</string>
+    <string name="sender">Sender:</string>
+    <string name="type">Type:</string>
+    <string name="state">State:</string>
+
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

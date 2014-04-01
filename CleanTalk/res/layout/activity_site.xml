@@ -1,36 +1,95 @@
-<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/viewSwitcher"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:inAnimation="@android:anim/fade_in"
-    android:outAnimation="@android:anim/fade_out"
-    tools:context=".SiteActivity" >
+    android:layout_height="wrap_content"
+    android:background="#44b6c9df"
+    android:orientation="vertical"
+    android:padding="5dp" >
 
-    <org.cleantalk.app.views.ProgressBarIndeterminate
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
-
-    <LinearLayout
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:shrinkColumns="1"
+        android:stretchColumns="1" >
 
-        <ListView
-            android:id="@android:id/list"
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/time"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2014-02-17 20:06:20" />
+        </TableRow>
+
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@android:id/empty"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="#99349ebf"
-            android:textSize="9pt"
-            android:gravity="center"
-            android:text="@string/no_data" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/sender"
+                android:textStyle="bold" />
 
-</ViewSwitcher>
+            <TextView
+                android:id="@+id/textViewSender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="false"
+                android:text="mail@mail.mail mail@mail.mail mail@mail.mail" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/type"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TextView" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/state"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textViewStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Запрещено" />
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/textViewMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/message_text_bg"
+        android:padding="12dp"
+        android:text="Я заметил, некоторые блоггеры любят провоцировать читателей, некоторые даже сами провокационные комменты оставляют сами у себя на блоге"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</LinearLayout>

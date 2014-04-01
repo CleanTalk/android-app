@@ -11,6 +11,7 @@ import org.json.JSONArray;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -26,7 +27,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -180,12 +180,12 @@ public class SiteActivity extends ActionBarActivity {
 		public boolean areAllItemsEnabled() {
 			return false;
 		}
-		
+
 		@Override
 		public boolean isEnabled(int position) {
 			return false;
 		}
-		
+
 		@Override
 		public int getCount() {
 			return items_.size();
@@ -226,10 +226,10 @@ public class SiteActivity extends ActionBarActivity {
 
 			Request request = getItem(position);
 			holder.textViewTime.setText(request.getDatetime());
-			if(request.getSenderEmail().equals("null")){
+			if (request.getSenderEmail().equals("null")) {
 				holder.textViewSender.setText(request.getSenderNickname());
 			} else {
-				holder.textViewSender.setText(request.getSenderNickname() + " (" + request.getSenderEmail()+ ")" );
+				holder.textViewSender.setText(request.getSenderNickname() + " (" + request.getSenderEmail() + ")");
 			}
 			holder.textViewType.setText(request.getType());
 
@@ -241,7 +241,7 @@ public class SiteActivity extends ActionBarActivity {
 				holder.textViewStatus.setTextColor(getResources().getColor(R.color.spam_count_label));
 			}
 
-			if(request.getMessage().equals("null")){
+			if (request.getMessage().equals("null")) {
 				holder.textViewMessage.setVisibility(View.GONE);
 			} else {
 				holder.textViewMessage.setText(Html.fromHtml(request.getMessage()));
@@ -261,11 +261,35 @@ public class SiteActivity extends ActionBarActivity {
 	}
 
 	private void showProgress() {
-		((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(0);
+		View progressView = findViewById(R.id.progress);
+		final AnimationDrawable animation = (AnimationDrawable) progressView.getBackground();
+		progressView.post(new Runnable() {
+			@Override
+			public void run() {
+				animation.start();
+			}
+		});
+		progressView.setVisibility(View.VISIBLE);
+		TextView tv = (TextView) findViewById(android.R.id.empty);
+		if (tv != null) {
+			tv.setText(R.string.loading);
+		}
 	}
 
 	private void hideProgress() {
-		((ViewSwitcher) findViewById(R.id.viewSwitcher)).setDisplayedChild(1);
+		View progressView = findViewById(R.id.progress);
+		progressView.setVisibility(View.GONE);
+		final AnimationDrawable animation = (AnimationDrawable) progressView.getBackground();
+		progressView.post(new Runnable() {
+			@Override
+			public void run() {
+				animation.stop();
+			}
+		});
+		TextView tv = (TextView) findViewById(android.R.id.empty);
+		if (tv != null) {
+			tv.setText(R.string.no_data);
+		}
 	}
 
 	private void loadRequests(JSONArray response) {
