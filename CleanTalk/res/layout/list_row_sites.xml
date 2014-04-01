@@ -26,10 +26,13 @@
             android:id="@+id/textViewSiteName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:layout_marginRight="4dp"
             android:layout_toRightOf="@+id/imageViewLogo"
-            android:drawablePadding="4dp"
-            android:text="wordpress.org"
+            android:background="@drawable/clickable_title_bg"
+            android:clickable="true"
+            android:padding="4dp"
             android:textColor="@color/text_color"
             android:textSize="9pt"
             android:textStyle="bold" />
@@ -37,10 +40,12 @@
         <TextView
             android:id="@+id/textViewNew"
             style="@style/TextViewNew"
-            android:layout_marginLeft="-5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/textViewSiteName"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="2dp"
+            android:layout_alignParentTop="true"
             android:visibility="visible" />
     </RelativeLayout>
 
