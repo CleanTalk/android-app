@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -15,6 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Request;
 import org.cleantalk.app.model.Site;
 import org.json.JSONArray;
@@ -153,36 +155,39 @@ public class Utils {
 		return newArray;
 	}
 
-	public static long getWeekAgoTimestamp() {
+	public static long getWeekAgoTimestamp(Context context) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 		cal.add(Calendar.DAY_OF_YEAR, -7);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
-		return cal.getTimeInMillis() / 1000L;
+		return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
 	}
 
-	public static long getTodayTimestamp() {
+	public static long getTodayTimestamp(Context context) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
-		return cal.getTimeInMillis() / 1000L;
+		return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
 	}
 
-	public static long getYesterdayTimestamp() {
+	public static long getYesterdayTimestamp(Context context) {
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 		cal.add(Calendar.DAY_OF_YEAR, -1);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
-		return cal.getTimeInMillis() / 1000L;
+		return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
 	}
 	
 	public static List<Site> parseSites(JSONArray array) {
@@ -242,7 +247,6 @@ public class Utils {
 						obj.getString("type"),
 						obj.getString("message"));
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			result.add(site);

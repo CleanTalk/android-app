@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -57,7 +56,7 @@ public class SiteActivity extends ActionBarActivity {
 				startActivity(new Intent(SiteActivity.this, LoginActivity.class));
 				finish();
 			} else if (error instanceof NetworkError) {
-				Toast.makeText(SiteActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
+				Utils.makeToast(SiteActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
 			}
 			hideProgress();
 		}
@@ -118,27 +117,27 @@ public class SiteActivity extends ActionBarActivity {
 
 		switch (requestType_) {
 		case R.id.textViewTodayAllowed:
-			startFrom = Utils.getTodayTimestamp();
+			startFrom = Utils.getTodayTimestamp(this);
 			allow = 1;
 			break;
 		case R.id.textViewTodayBlocked:
-			startFrom = Utils.getTodayTimestamp();
+			startFrom = Utils.getTodayTimestamp(this);
 			allow = 0;
 			break;
 		case R.id.textViewWeekAllowed:
-			startFrom = Utils.getWeekAgoTimestamp();
+			startFrom = Utils.getWeekAgoTimestamp(this);
 			allow = 1;
 			break;
 		case R.id.textViewWeekBlocked:
-			startFrom = Utils.getWeekAgoTimestamp();
+			startFrom = Utils.getWeekAgoTimestamp(this);
 			allow = 0;
 			break;
 		case R.id.textViewYesterdayAllowed:
-			startFrom = Utils.getYesterdayTimestamp();
+			startFrom = Utils.getYesterdayTimestamp(this);
 			allow = 1;
 			break;
 		case R.id.textViewYesterdayBlocked:
-			startFrom = Utils.getYesterdayTimestamp();
+			startFrom = Utils.getYesterdayTimestamp(this);
 			allow = 0;
 			break;
 		default:

@@ -33,7 +33,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -59,7 +58,7 @@ public class MainActivity extends ActionBarActivity {
 				startActivity(new Intent(MainActivity.this, LoginActivity.class));
 				finish();
 			} else if (error instanceof NetworkError) {
-				Toast.makeText(MainActivity.this, getString(R.string.connection_error), Toast.LENGTH_LONG).show();
+				Utils.makeToast(MainActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
 			}
 			hideProgress();
 		}
@@ -314,7 +313,7 @@ public class MainActivity extends ActionBarActivity {
 			return;
 		}
 		this.doubleBackToExitPressedOnce_ = true;
-		Toast.makeText(this, R.string.click_back_again_to_exit, Toast.LENGTH_SHORT).show();
+		Utils.makeToast(this, getString(R.string.click_back_again_to_exit), Utils.ToastType.Info);
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
