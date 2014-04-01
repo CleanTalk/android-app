@@ -335,7 +335,7 @@ public class MainActivity extends ActionBarActivity {
 		SharedPreferences pref = getPreferences(MODE_PRIVATE);
 		int notified = pref.getInt("notified" + siteId, -1);
 		long time = pref.getLong("time" + siteId, -1);
-		if (((new Date()).getTime() - time) < 86_400_000) {
+		if (((new Date()).getTime() - time) < 86400000) {
 			return notified;
 		} else {
 			return 0;
