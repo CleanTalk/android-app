@@ -1,7 +1,6 @@
 package org.cleantalk.app.activities;
 
 import java.lang.reflect.Field;
-import java.util.Date;
 import java.util.List;
 
 import org.cleantalk.app.R;
@@ -203,8 +202,21 @@ public class MainActivity extends ActionBarActivity {
 			if (today - notified > 0) {
 				holder.textViewNew.setText(String.valueOf(today - notified));
 				holder.textViewNew.setVisibility(View.VISIBLE);
+				holder.textViewSiteName.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(MainActivity.this, SiteActivity.class);
+						intent.putExtra(SiteActivity.EXTRA_REQUEST_TYPE, v.getId());
+						intent.putExtra(SiteActivity.EXTRA_SITE_NAME, site.getSiteName());
+						intent.putExtra(SiteActivity.EXTRA_SITE_ID, site.getSiteId());
+						intent.putExtra(SiteActivity.EXTRA_LAST_NOTIFIED, setTodayNotified(site.getSiteId(), site.getTodayAllowed()));
+						startActivity(intent);
+					}
+				});
 			} else {
 				holder.textViewNew.setVisibility(View.GONE);
+				holder.textViewSiteName.setOnClickListener(null);
+				
 			}
 
 			OnClickListener onCountClickListener = new OnClickListener() {
@@ -322,19 +334,21 @@ public class MainActivity extends ActionBarActivity {
 		}, 2000);
 	}
 
-	private void setTodayNotified(String siteId, int todayAllowedNotified) {
+	private long setTodayNotified(String siteId, int todayAllowedNotified) {
+		long time = Utils.getTimestamp(this);
 		getPreferences(MODE_PRIVATE)
 			.edit()
 			.putInt("notified" + siteId, todayAllowedNotified)
-			.putLong("time" + siteId, (new Date()).getTime())
+			.putLong("time" + siteId, time )
 			.commit();
+		return time;
 	}
 
 	private int getTodayNotified(String siteId) {
 		SharedPreferences pref = getPreferences(MODE_PRIVATE);
 		int notified = pref.getInt("notified" + siteId, -1);
 		long time = pref.getLong("time" + siteId, -1);
-		if (((new Date()).getTime() - time) < 86400000) {
+		if ((Utils.getTimestamp(this) - time) < 86400000) {
 			return notified;
 		} else {
 			return 0;

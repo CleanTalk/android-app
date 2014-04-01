@@ -38,6 +38,7 @@ public class SiteActivity extends ActionBarActivity {
 	protected static final String EXTRA_REQUEST_TYPE = "EXTRA_REQUEST_TYPE";
 	protected static final String EXTRA_SITE_ID = "EXTRA_SITE_ID";
 	protected static final String EXTRA_SITE_NAME = "EXTRA_SITE_NAME";
+	protected static final String EXTRA_LAST_NOTIFIED = "EXTRA_LAST_NOTIFIED";
 
 	private ServiceApi serviceApi_;
 	private ListView listView_;
@@ -62,7 +63,8 @@ public class SiteActivity extends ActionBarActivity {
 		}
 	};
 	private String siteId_;
-	private Integer requestType_;
+	private int requestType_;
+	private long lastNotified_;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +78,9 @@ public class SiteActivity extends ActionBarActivity {
 		}
 
 		siteId_ = extras.getString(EXTRA_SITE_ID);
+		lastNotified_ = extras.getLong(EXTRA_LAST_NOTIFIED, -1);
 		requestType_ = extras.getInt(EXTRA_REQUEST_TYPE, -1);
-		if (siteId_ == null || requestType_ == -1) {
+		if (siteId_ == null) {
 			finish();
 			return;
 		}
@@ -139,6 +142,10 @@ public class SiteActivity extends ActionBarActivity {
 		case R.id.textViewYesterdayBlocked:
 			startFrom = Utils.getYesterdayTimestamp(this);
 			allow = 0;
+			break;
+		case R.id.textViewSiteName:
+			startFrom = lastNotified_;
+			allow = 1;
 			break;
 		default:
 			break;

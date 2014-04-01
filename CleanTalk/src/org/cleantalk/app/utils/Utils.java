@@ -155,15 +155,9 @@ public class Utils {
 		return newArray;
 	}
 
-	public static long getWeekAgoTimestamp(Context context) {
+	public static long getTimestamp(Context context) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-		cal.add(Calendar.DAY_OF_YEAR, -7);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-
 		return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
 	}
 
@@ -182,6 +176,18 @@ public class Utils {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 		cal.add(Calendar.DAY_OF_YEAR, -1);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
+	}
+
+	public static long getWeekAgoTimestamp(Context context) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+		cal.add(Calendar.DAY_OF_YEAR, -7);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
