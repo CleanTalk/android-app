@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -50,6 +51,8 @@ public class ServicesRequest extends Request<JSONArray> {
 			JSONObject result = new JSONObject(jsonString);
 			int resultCode = result.getInt("auth");
 			if (resultCode == RESULT_SUCCESS) {
+				String tz = result.getString("timezone");
+				ServiceApi.getInstance(context_).setTimezone(TimeZone.getTimeZone("GMT"+tz));
 				return Response.success(result.getJSONArray("services"), HttpHeaderParser.parseCacheHeaders(response));
 			} else {
 				VolleyError error = new VolleyError(context_.getString(R.string.auth_error));

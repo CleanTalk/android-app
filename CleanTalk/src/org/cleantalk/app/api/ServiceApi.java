@@ -1,5 +1,7 @@
 package org.cleantalk.app.api;
 
+import java.util.TimeZone;
+
 import org.cleantalk.app.R;
 import org.cleantalk.app.gcm.GcmSenderIdRecieverTask;
 import org.cleantalk.app.utils.Utils;
@@ -21,6 +23,7 @@ import com.android.volley.toolbox.Volley;
 
 public class ServiceApi {
 	private static final String PROPERTY_SESSION = "PROPERTY_SESSION";
+	private static final String PROPERTY_TIMEZONE = "PROPERTY_TIMEZONE";
 
 	private static final String HOST = "https://cleantalk.org";
 	private static final String AUTH_URI = HOST + "/my/session?app_mode=1";
@@ -125,6 +128,19 @@ public class ServiceApi {
 			String eAppSessionId = Utils.AES128Encrypt(appSessionId, initialisationVector, initialisationVector);
 			getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
 		}
+	}
+
+	public TimeZone getTimezone() {
+		String timezone = getPreferences().getString(PROPERTY_TIMEZONE, null);
+		if (timezone != null) {
+			return TimeZone.getTimeZone(timezone);
+		} else {
+			return TimeZone.getDefault();
+		}
+	}
+
+	public void setTimezone(TimeZone timezone) {
+		getPreferences().edit().putString(PROPERTY_TIMEZONE, timezone.getID()).commit();
 	}
 
 	public void logout() {
