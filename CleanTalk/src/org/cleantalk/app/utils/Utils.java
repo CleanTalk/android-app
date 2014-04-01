@@ -14,6 +14,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.cleantalk.app.R;
 import org.cleantalk.app.model.Request;
 import org.cleantalk.app.model.Site;
 import org.json.JSONArray;
@@ -22,8 +23,14 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.provider.Settings.Secure;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class Utils {
+
+	public enum ToastType { Error, Info }
 
 	public static String getDeviceId(Context context) {
 		return Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
@@ -242,5 +249,24 @@ public class Utils {
 
 		}
 		return result;
+	}
+	
+
+	public static Toast makeToast(Context context, String text, ToastType type) {
+		TextView textview = (TextView) LayoutInflater.from(context).inflate(R.layout.layout_toast, null);
+		textview.setText(text);
+		switch (type) {
+		case Error:
+			textview.setBackgroundResource(R.drawable.toast_error_bg);
+			break;
+		case Info:
+			textview.setBackgroundResource(R.drawable.toast_bg);
+			break;
+		}
+		Toast toast = new Toast(context);
+		toast.setView(textview);
+		toast.setDuration(Toast.LENGTH_SHORT);
+		toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 100);
+		return toast;
 	}
 }
