@@ -1,0 +1,10 @@
+<resources>
+
+    <color name="text_color">#11617C</color>
+    <color name="text_light">#99349ebf</color>
+    <color name="toast_error_bg">#99A62445</color>
+    <color name="triangle_color">#4411617C</color>
+    <color name="spam_count_label">#A62445</color>
+    <color name="allowed_count_label">#3B8A23</color>
+
+</resources>

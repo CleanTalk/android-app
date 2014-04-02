@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="action_settings">Настройки</string>
+    <string name="label_today">Сегодня</string>
+    <string name="label_yesterday">Вчера</string>
+    <string name="label_week">Неделя</string>
+    <string name="status_approved">Разрешено</string>
+    <string name="status_forbidden">Запрещено</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_control_panel">Панель управления</string>
+    <string name="action_visit_site">Перейти на cleantalk.org</string>
+    <string name="action_logout">Выйти</string>
+    <string name="loading">Загрузка&#8230;</string>
+    <string name="auth_error">Ошибка авторизации, пожалуйста проверьте логин и пароль.</string>
+    <string name="connection_error">Проверьте интернет соединение и повторите попытку</string>
+    <string name="play_services_required">Google Play Services необходимы для получения уведомления с сайта. Уведомления не будут активны.</string>
+    <string name="no_data">Список пуст</string>
+
+    <string name="time">Время:</string>
+    <string name="sender">Отправитель:</string>
+    <string name="type">Тип:</string>
+    <string name="state">Статус:</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_login_short">Войти</string>
+    <string name="action_forgot_password">Восстановить пароль</string>
+    <string name="login_progress_signing_in">Авторизация&#8230;</string>
+    <string name="error_invalid_email">Не корректный e-mail</string>
+    <string name="error_invalid_password">Пароль слишком короткий</string>
+    <string name="error_incorrect_password">Неверный логин или пароль</string>
+    <string name="error_field_required">Обязательное поле</string>
+    <string name="click_back_again_to_exit">Для выхода нажмите кнопку BACK еще раз.</string>
+
+</resources>

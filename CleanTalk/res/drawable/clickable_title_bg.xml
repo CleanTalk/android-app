@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:state_enabled="true" android:state_pressed="false">
+		<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+			<item>
+				<nine-patch android:src="@drawable/trngl"/>
+			</item>
+			<item>
+				<shape android:shape="rectangle">
+					<solid android:color="#22cccccc" />
+				</shape>
+			</item>
+		</layer-list>
+	</item>
+	<item android:state_enabled="true" android:state_pressed="true">
+		<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+			<item>
+				<nine-patch android:src="@drawable/trngl"/>
+			</item>
+			<item>
+				<shape android:shape="rectangle">
+					<solid android:color="#44ffffff" />
+				</shape>
+			</item>
+		</layer-list>
+	</item>
+
+</selector>
