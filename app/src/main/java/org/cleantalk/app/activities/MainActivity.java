@@ -47,10 +47,10 @@ public class MainActivity extends ActionBarActivity {
 
     public static boolean active = false;
 
-    private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
+    private final Listener<List<Site>> responseListener_ = new Listener<List<Site>>() {
         @Override
-        public void onResponse(JSONArray response) {
-            loadSites(response);
+        public void onResponse(List<Site> sites) {
+            loadSites(sites);
             hideProgress();
         }
     };
@@ -153,8 +153,7 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    private void loadSites(JSONArray response) {
-        List<Site> sites = Utils.parseSites(response);
+    private void loadSites(List<Site> sites) {
         listView_.setAdapter(new SitesAdapter(this, sites));
     }
 

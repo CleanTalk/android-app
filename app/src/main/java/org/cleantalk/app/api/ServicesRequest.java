@@ -12,36 +12,39 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 
 import org.cleantalk.app.R;
-import org.json.JSONArray;
+import org.cleantalk.app.model.Site;
+import org.cleantalk.app.utils.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 
-class ServicesRequest extends Request<JSONArray> {
+class ServicesRequest extends Request<List<Site>> {
 
     private static final int RESULT_SUCCESS = 1;
     private static final String REQUEST_PARAMS_APP_SESSION_ID = "app_session_id";
+    private static final String SERVICES_URI = ServiceApi.HOST + "/my/main?app_mode=1";
 
-    private final Listener<JSONArray> listener;
-    private final HashMap<String, String> params = new HashMap<>(1);
+    private final Listener<List<Site>> listener;
+    private final HashMap<String, String> params = new HashMap<>(2);
     private final Context context;
 
     public ServicesRequest(Context context,
-                           String url,
                            String appSessionId,
-                           Listener<JSONArray> listener,
+                           int pageNumber,
+                           Listener<List<Site>> listener,
                            ErrorListener errorListener) {
-        super(Method.POST, url, errorListener);
+        super(Method.POST, SERVICES_URI + "&service_page=" + String.valueOf(pageNumber), errorListener);
         this.listener = listener;
         this.context = context;
         params.put(REQUEST_PARAMS_APP_SESSION_ID, appSessionId);
     }
 
     @Override
-    protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
+    protected Response<List<Site>> parseNetworkResponse(NetworkResponse response) {
         try {
             String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
             JSONObject result = new JSONObject(jsonString);
@@ -49,7 +52,9 @@ class ServicesRequest extends Request<JSONArray> {
             if (resultCode == RESULT_SUCCESS) {
                 String tz = result.getString("timezone");
                 ServiceApi.getInstance(context).setTimezone(TimeZone.getTimeZone("GMT" + tz));
-                return Response.success(result.getJSONArray("services"), HttpHeaderParser.parseCacheHeaders(response));
+
+                List<Site> sites = Utils.parseSites(result.getJSONArray("services"));
+                return Response.success(sites, HttpHeaderParser.parseCacheHeaders(response));
             } else {
                 VolleyError error = new VolleyError(context.getString(R.string.auth_error));
                 return Response.error(error);
@@ -67,7 +72,7 @@ class ServicesRequest extends Request<JSONArray> {
     }
 
     @Override
-    protected void deliverResponse(JSONArray response) {
+    protected void deliverResponse(List<Site> response) {
         listener.onResponse(response);
     }
 }

@@ -1,12 +1,5 @@
 package org.cleantalk.app.api;
 
-import java.util.TimeZone;
-
-import org.cleantalk.app.R;
-//import org.cleantalk.app.gcm.GcmSenderIdRecieverTask;
-import org.cleantalk.app.utils.Utils;
-import org.json.JSONArray;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -21,13 +14,22 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
+import org.cleantalk.app.R;
+import org.cleantalk.app.model.Site;
+import org.cleantalk.app.utils.Utils;
+import org.json.JSONArray;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.TimeZone;
+
 public class ServiceApi {
     private static final String PROPERTY_SESSION = "PROPERTY_SESSION";
     private static final String PROPERTY_TIMEZONE = "PROPERTY_TIMEZONE";
 
-    private static final String HOST = "https://cleantalk.org";
+    public static final String HOST = "https://cleantalk.org";
     private static final String AUTH_URI = HOST + "/my/session?app_mode=1";
-    private static final String SERVICES_URI = HOST + "/my/main?app_mode=1";
     private static final String REQUESTS_URI = HOST + "/my/show_requests?app_mode=1";
 
     private static ServiceApi serviceApi_;
@@ -86,25 +88,80 @@ public class ServiceApi {
         requestQueue_.add(request);
     }
 
-    public void requestServices(Listener<JSONArray> listener, ErrorListener errorListener) {
-        String appSessionId = getAppSessionId();
-        if (TextUtils.isEmpty(appSessionId)) {
-            AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
-            errorListener.onErrorResponse(error);
-            return;
-        }
-        ServicesRequest request = new ServicesRequest(context_, SERVICES_URI, appSessionId, listener, errorListener);
-        requestQueue_.add(request);
+    public void requestServices(Listener<List<Site>> listener, ErrorListener errorListener) {
+        PageCollecting pc = new PageCollecting(listener, errorListener);
+        pc.start();
     }
 
-    public void requestRequests(String siteId, long startFrom, int allow, Listener<JSONArray> listener, ErrorListener errorListener) {
+    class PageCollecting implements Listener<List<Site>>, ErrorListener {
+
+        private final Listener<List<Site>> resultListener;
+        private final ArrayList<Site> allSites = new ArrayList<>();
+        private final String appSessionId;
+        private final ErrorListener errorListener;
+        private int pageNumber;
+
+        public PageCollecting(Listener<List<Site>> resultListener, ErrorListener errorListener) {
+            this.resultListener = resultListener;
+            this.pageNumber = 1;
+            this.appSessionId = getAppSessionId();
+            this.errorListener = errorListener;
+
+            if (TextUtils.isEmpty(appSessionId)) {
+                AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
+                errorListener.onErrorResponse(error);
+            }
+        }
+
+        @Override
+        public void onResponse(List<Site> response) {
+            allSites.addAll(response);
+            if (response.size() < 10) {
+                resultListener.onResponse(allSites);
+            } else {
+                pageNumber++;
+                request(this, pageNumber);
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            errorListener.onErrorResponse(error);
+        }
+
+        private void request(Listener<List<Site>> listener, int pageNumber) {
+            ServicesRequest request = new ServicesRequest(context_,
+                    appSessionId,
+                    pageNumber,
+                    listener,
+                    errorListener);
+            requestQueue_.add(request);
+        }
+
+        public void start() {
+            request(this, 1);
+        }
+    }
+
+    public void requestRequests(String siteId,
+                                long startFrom,
+                                int allow,
+                                Listener<JSONArray> listener,
+                                ErrorListener errorListener) {
         String appSessionId = getAppSessionId();
         if (TextUtils.isEmpty(appSessionId)) {
             AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
             errorListener.onErrorResponse(error);
             return;
         }
-        RequestsRequest request = new RequestsRequest(context_, REQUESTS_URI, appSessionId, siteId, startFrom, allow, listener,
+        RequestsRequest request = new RequestsRequest(
+                context_,
+                REQUESTS_URI,
+                appSessionId,
+                siteId,
+                startFrom,
+                allow,
+                listener,
                 errorListener);
         requestQueue_.add(request);
     }
