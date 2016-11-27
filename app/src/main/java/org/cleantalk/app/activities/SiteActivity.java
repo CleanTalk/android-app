@@ -6,6 +6,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,7 +35,7 @@ import org.json.JSONArray;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class SiteActivity extends ActionBarActivity {
+public class SiteActivity extends AppCompatActivity {
 
     protected static final String EXTRA_REQUEST_TYPE = "EXTRA_REQUEST_TYPE";
     protected static final String EXTRA_SITE_ID = "EXTRA_SITE_ID";

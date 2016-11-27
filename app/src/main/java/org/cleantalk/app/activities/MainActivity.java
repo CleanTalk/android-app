@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,14 +37,11 @@ import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Site;
 import org.cleantalk.app.utils.Utils;
-import org.json.JSONArray;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
-//import org.cleantalk.app.gcm.GcmIntentService;
-
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     public static boolean active = false;
 
@@ -52,6 +50,7 @@ public class MainActivity extends ActionBarActivity {
         public void onResponse(List<Site> sites) {
             loadSites(sites);
             hideProgress();
+            listView_.setSelectionFromTop(list_index, list_top);
         }
     };
 
@@ -81,6 +80,8 @@ public class MainActivity extends ActionBarActivity {
     private ListView listView_;
     private boolean doubleBackToExitPressedOnce_;
     private Toast toast_;
+    private int list_index;
+    private int list_top;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +113,7 @@ public class MainActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(updateReceiver_, filter);
         active = true;
         super.onResume();
+        listView_.setSelectionFromTop(list_index, list_top);
     }
 
     @Override
@@ -229,6 +231,11 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(MainActivity.this, SiteActivity.class);
+
+                    list_index = listView_.getFirstVisiblePosition();
+                    View view = listView_.getChildAt(0);
+                    list_top = (view == null) ? 0 : (v.getTop() - listView_.getPaddingTop());
+
                     switch (v.getId()) {
                         case R.id.textViewTodayBlocked:
                         case R.id.textViewTodayAllowed:
