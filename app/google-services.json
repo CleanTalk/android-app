@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "173878792057",
+    "firebase_url": "https://cleantalk-81832.firebaseio.com",
+    "project_id": "cleantalk-81832",
+    "storage_bucket": "cleantalk-81832.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:173878792057:android:1181a57dc439aa05",
+        "android_client_info": {
+          "package_name": "org.cleantalk.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "173878792057-0b5rbjlpv1bltb55380gsr3s1jv1skt8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.cleantalk.app",
+            "certificate_hash": "16D54E22908BF5A60A6D3D3A20179454062AAB6E"
+          }
+        },
+        {
+          "client_id": "173878792057-u1e836r1smdkcn0scft2mv5sr8746ssi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAE14v2_jc65BMWXJFOTt8lT6eQkgwh5cc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "173878792057-u1e836r1smdkcn0scft2mv5sr8746ssi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

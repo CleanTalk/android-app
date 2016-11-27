@@ -1,26 +1,38 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'CleanTalk'
+            keyPassword ''
+            storeFile file('../CleanTalk.keystore')
+            storePassword ''
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
-
     defaultConfig {
         applicationId "org.cleantalk.app"
         minSdkVersion 9
         targetSdkVersion 25
+        versionCode 1
+        versionName '1.1'
     }
-
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
+    productFlavors {
+    }
 }
 
 dependencies {
-//    compile 'com.android.support:support-v4:25.0.0'
     compile 'com.android.support:appcompat-v7:25.0.0'
-//    compile 'com.google.android.gms:play-services:+'
+    compile 'com.google.firebase:firebase-messaging:9.8.0'
     compile files('libs/volley-library.jar')
 }
+
+
+apply plugin: 'com.google.gms.google-services'
