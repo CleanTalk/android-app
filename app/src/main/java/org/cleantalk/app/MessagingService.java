@@ -1,5 +1,6 @@
 package org.cleantalk.app;
 
+import android.content.IntentFilter;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -8,6 +9,7 @@ import com.google.firebase.messaging.RemoteMessage;
 public class MessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "FCM";
+    public static final String ACTION_UPDATE = "ACTION_UPDATE";
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {

@@ -1,15 +1,5 @@
 package org.cleantalk.app.api;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
-//import org.apache.http.client.entity.UrlEncodedFormEntity;
-//import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.text.TextUtils;
 
 import com.android.volley.NetworkResponse;
@@ -20,63 +10,67 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.HttpHeaderParser;
 
-public class AuthRequest extends Request<String> {
+import org.json.JSONException;
+import org.json.JSONObject;
 
-	private static final int RESULT_SUCCESS = 1;
-//	private UrlEncodedFormEntity entity_;
-	private final Listener<String> listener_;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 
-	public AuthRequest(String url, String login, String password, String appSenderId, String deviceId, Listener<String> listener,
-			ErrorListener errorListener) {
-		super(Method.POST, url, errorListener);
-		listener_ = listener;
-//		List<BasicNameValuePair> values = new ArrayList<BasicNameValuePair>();
-//		values.add(new BasicNameValuePair("login", login));
-//		values.add(new BasicNameValuePair("password", password));
-//		values.add(new BasicNameValuePair("app_device_token", deviceId));
-//		if(!TextUtils.isEmpty(appSenderId)){
-//			// We send GCM sender id if user has that kind of service
-//			values.add(new BasicNameValuePair("app_sender_id", appSenderId));
-//		}
-//		try {
-//			entity_ = new UrlEncodedFormEntity(values, "UTF-8");
-//		} catch (UnsupportedEncodingException e) {
-//			e.printStackTrace();
-//		}
-	}
+class AuthRequest extends Request<String> {
 
-	@Override
-	protected Response<String> parseNetworkResponse(NetworkResponse response) {
-		try {
-			String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-			JSONObject result = new JSONObject(jsonString);
-			int resultCode = result.getInt("success");
-			String appSessionId = null;
-			if(resultCode == RESULT_SUCCESS){
-				appSessionId = result.getString("app_session_id");
-			}
-			return Response.success(appSessionId, HttpHeaderParser.parseCacheHeaders(response));
-		} catch (UnsupportedEncodingException e) {
-			return Response.error(new ParseError(e));
-		} catch (JSONException je) {
-			return Response.error(new ParseError(je));
-		}
-	}
+    private static final int RESULT_SUCCESS = 1;
+    private static final String REQUEST_PARAMS_LOGIN = "login";
+    private static final String REQUEST_PARAMS_PASSWORD = "password";
+    private static final String REQUEST_PARAMS_DEVICE_TOKEN = "app_device_token";
+    private static final String REQUEST_PARAMS_APP_SENDER_ID = "app_sender_id";
+    private static final String RESULT_FIELD_SUCCESS = "success";
+    private static final String RESULT_FIELD_APP_SESSION_ID = "app_session_id";
 
-	@Override
-	public byte[] getBody() {
-		byte[] array = null;
-//		try {
-//			array = new byte[entity_.getContent().available()];
-//			entity_.getContent().read(array);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		return array;
-	}
+    private final HashMap<String, String> params = new HashMap<>(4);
+    private final Listener<String> listener;
 
-	@Override
-	protected void deliverResponse(String response) {
-		listener_.onResponse(response);
-	}
+    public AuthRequest(String url,
+                       String login,
+                       String password,
+                       String appSenderId,
+                       String deviceId,
+                       Listener<String> listener,
+                       ErrorListener errorListener) {
+        super(Method.POST, url, errorListener);
+        this.listener = listener;
+        params.put(REQUEST_PARAMS_LOGIN, login);
+        params.put(REQUEST_PARAMS_PASSWORD, password);
+        params.put(REQUEST_PARAMS_DEVICE_TOKEN, deviceId);
+        if (!TextUtils.isEmpty(appSenderId)) {
+            params.put(REQUEST_PARAMS_APP_SENDER_ID, appSenderId);
+        }
+    }
+
+    @Override
+    protected Response<String> parseNetworkResponse(NetworkResponse response) {
+        try {
+            String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+            JSONObject result = new JSONObject(jsonString);
+            int resultCode = result.getInt(RESULT_FIELD_SUCCESS);
+            String appSessionId = null;
+            if (resultCode == RESULT_SUCCESS) {
+                appSessionId = result.getString(RESULT_FIELD_APP_SESSION_ID);
+            }
+            return Response.success(appSessionId, HttpHeaderParser.parseCacheHeaders(response));
+        } catch (UnsupportedEncodingException e) {
+            return Response.error(new ParseError(e));
+        } catch (JSONException je) {
+            return Response.error(new ParseError(je));
+        }
+    }
+
+    @Override
+    public HashMap<String, String> getParams() {
+        return params;
+    }
+
+    @Override
+    protected void deliverResponse(String response) {
+        listener.onResponse(response);
+    }
 }
