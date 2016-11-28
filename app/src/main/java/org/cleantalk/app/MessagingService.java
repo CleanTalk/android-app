@@ -4,8 +4,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -31,22 +31,12 @@ public class MessagingService extends FirebaseMessagingService {
         String title = remoteMessage.getNotification().getTitle();
         String message = remoteMessage.getNotification().getBody();
 
+        if (MainActivity.foreground) {
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(ACTION_UPDATE));
+        } else {
+            showNotification(message, title);
+        }
 
-//        Bundle extras = intent.getExtras();
-//        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-//        String messageType = gcm.getMessageType(intent);
-//
-//        if (!extras.isEmpty()) {
-//            if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-//                if (MainActivity.foreground) {
-//                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(ACTION_UPDATE));
-//                } else {
-//                    String message = extras.getString("message");
-//                    String title = extras.getString("title");
-//                    sendNotification(message, title);
-//                }
-//            }
-//        }
     }
 
     private void showNotification(String message, String title) {

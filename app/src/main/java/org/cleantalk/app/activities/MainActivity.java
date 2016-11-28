@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +36,7 @@ import org.cleantalk.app.MessagingService;
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.Site;
+import org.cleantalk.app.utils.Preferences;
 import org.cleantalk.app.utils.Utils;
 
 import java.lang.reflect.Field;
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
         listView_ = ((ListView) findViewById(android.R.id.list));
         listView_.setEmptyView(findViewById(android.R.id.empty));
 
+        Log.d("!!!", "TOKEN:" + Preferences.getFcmToken(this));
+
         // Check weather activity launch from notification...
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
@@ -106,20 +110,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
         showProgress();
         serviceApi_.requestServices(responseListener_, errorListener_);
         IntentFilter filter = new IntentFilter(MessagingService.ACTION_UPDATE);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(updateReceiver_, filter);
         foreground = true;
-        super.onResume();
         listView_.setSelectionFromTop(list_index, list_top);
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(updateReceiver_);
         foreground = false;
-        super.onPause();
     }
 
     private void showProgress() {
