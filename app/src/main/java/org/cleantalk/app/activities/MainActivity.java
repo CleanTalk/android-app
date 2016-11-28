@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,7 +42,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static boolean active = false;
+    public static boolean foreground = false;
 
     private final Listener<List<Site>> responseListener_ = new Listener<List<Site>>() {
         @Override
@@ -111,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         serviceApi_.requestServices(responseListener_, errorListener_);
         IntentFilter filter = new IntentFilter(MessagingService.ACTION_UPDATE);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(updateReceiver_, filter);
-        active = true;
+        foreground = true;
         super.onResume();
         listView_.setSelectionFromTop(list_index, list_top);
     }
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(updateReceiver_);
-        active = false;
+        foreground = false;
         super.onPause();
     }
 
