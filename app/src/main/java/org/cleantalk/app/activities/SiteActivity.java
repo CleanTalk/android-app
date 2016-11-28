@@ -1,10 +1,13 @@
 package org.cleantalk.app.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -60,7 +63,6 @@ public class SiteActivity extends AppCompatActivity {
     private final Listener<RequestModel> sendFeedbackResponseListener_ = new Listener<RequestModel>() {
         @Override
         public void onResponse(RequestModel request) {
-            toast_ = Utils.makeToast(SiteActivity.this, "OK!", Utils.ToastType.Info);
             toast_.show();
             adapter.updateItem(request);
         }
@@ -292,12 +294,18 @@ public class SiteActivity extends AppCompatActivity {
             holder.buttonSpam.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    holder.buttonSpam.setEnabled(false);
-                    serviceApi_.sendFeedback(
-                            authKey_,
-                            request,
-                            sendFeedbackResponseListener_,
-                            errorListener_);
+                    showDialog(
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    holder.buttonSpam.setEnabled(false);
+                                    serviceApi_.sendFeedback(
+                                            authKey_,
+                                            request,
+                                            sendFeedbackResponseListener_,
+                                            errorListener_);
+                                }
+                            },
+                            request.getApproved() == 1 ? R.string.mark_it_as_spam : R.string.mark_it_as_not_spam);
                 }
             });
             holder.buttonSpam.setEnabled(true);
@@ -367,6 +375,16 @@ public class SiteActivity extends AppCompatActivity {
         List<RequestModel> requests = Utils.parseRequests(this, response, endTo_);
         adapter = new RequestAdapter(this, requests);
         listView_.setAdapter(adapter);
+    }
+
+    public void showDialog(final DialogInterface.OnClickListener yesClickListener, @StringRes int messageTextResId) {
+        new AlertDialog.Builder(this)
+                .setMessage(messageTextResId)
+                .setPositiveButton(R.string.yes, yesClickListener)
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                }).show();
     }
 
 }

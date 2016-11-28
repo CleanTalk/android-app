@@ -39,5 +39,9 @@
     <string name="blocked">Заблокирован</string>
     <string name="marked_as_spam">Отмечен как спам!</string>
     <string name="marked_as_not_spam">Отмечен как не спам!</string>
+    <string name="mark_it_as_not_spam">Пометить как \'не спам\'?</string>
+    <string name="no">Нет</string>
+    <string name="mark_it_as_spam">Пометить как \'спам\'?</string>
+    <string name="yes">Да</string>
 
 </resources>

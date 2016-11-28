@@ -40,5 +40,9 @@
     <string name="not_spam">Not spam</string>
     <string name="marked_as_spam">Marked as spam!</string>
     <string name="marked_as_not_spam">Marked as not spam!</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="mark_it_as_spam">Mark it as spam?</string>
+    <string name="mark_it_as_not_spam">Mark it as not spam?</string>
 
 </resources>
