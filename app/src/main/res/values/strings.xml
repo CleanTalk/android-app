@@ -36,5 +36,9 @@
     <string name="click_back_again_to_exit">Please click BACK again to exit</string>
     <string name="allowed">Allowed</string>
     <string name="blocked">Blocked</string>
+    <string name="spam">Spam</string>
+    <string name="not_spam">Not spam</string>
+    <string name="marked_as_spam">Marked as spam!</string>
+    <string name="marked_as_not_spam">Marked as not spam!</string>
 
 </resources>

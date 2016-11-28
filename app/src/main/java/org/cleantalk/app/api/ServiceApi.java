@@ -15,12 +15,12 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 import org.cleantalk.app.R;
+import org.cleantalk.app.model.RequestModel;
 import org.cleantalk.app.model.Site;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -93,54 +93,16 @@ public class ServiceApi {
         pc.start();
     }
 
-    class PageCollecting implements Listener<List<Site>>, ErrorListener {
-
-        private final Listener<List<Site>> resultListener;
-        private final ArrayList<Site> allSites = new ArrayList<>();
-        private final String appSessionId;
-        private final ErrorListener errorListener;
-        private int pageNumber;
-
-        public PageCollecting(Listener<List<Site>> resultListener, ErrorListener errorListener) {
-            this.resultListener = resultListener;
-            this.pageNumber = 1;
-            this.appSessionId = getAppSessionId();
-            this.errorListener = errorListener;
-
-            if (TextUtils.isEmpty(appSessionId)) {
-                AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
-                errorListener.onErrorResponse(error);
-            }
-        }
-
-        @Override
-        public void onResponse(List<Site> response) {
-            allSites.addAll(response);
-            if (response.size() < 10) {
-                resultListener.onResponse(allSites);
-            } else {
-                pageNumber++;
-                request(this, pageNumber);
-            }
-        }
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            errorListener.onErrorResponse(error);
-        }
-
-        private void request(Listener<List<Site>> listener, int pageNumber) {
-            ServicesRequest request = new ServicesRequest(context_,
-                    appSessionId,
-                    pageNumber,
-                    listener,
-                    errorListener);
-            requestQueue_.add(request);
-        }
-
-        public void start() {
-            request(this, 1);
-        }
+    public void sendFeedback(String authKey,
+                             RequestModel request,
+                             Listener<RequestModel> listener,
+                             ErrorListener errorListener) {
+        SendFeedbackRequest sendFeedbackRequest = new SendFeedbackRequest(context_,
+                authKey,
+                request,
+                listener,
+                errorListener);
+        requestQueue_.add(sendFeedbackRequest);
     }
 
     public void requestRequests(String siteId,
@@ -202,6 +164,56 @@ public class ServiceApi {
 
     public void logout() {
         setAppSessionId(null);
-//		GcmSenderIdRecieverTask.clearRegistrationId(context_);
+//		GcmSenderIdRecieverTask.clearRegistrationId(context_); TODO Same for FCM?
+    }
+
+    class PageCollecting implements Listener<List<Site>>, ErrorListener {
+
+        private final Listener<List<Site>> resultListener;
+        private final ArrayList<Site> allSites = new ArrayList<>();
+        private final String appSessionId;
+        private final ErrorListener errorListener;
+        private int pageNumber;
+
+        public PageCollecting(Listener<List<Site>> resultListener, ErrorListener errorListener) {
+            this.resultListener = resultListener;
+            this.pageNumber = 1;
+            this.appSessionId = getAppSessionId();
+            this.errorListener = errorListener;
+
+            if (TextUtils.isEmpty(appSessionId)) {
+                AuthFailureError error = new AuthFailureError(context_.getString(R.string.auth_error));
+                errorListener.onErrorResponse(error);
+            }
+        }
+
+        @Override
+        public void onResponse(List<Site> response) {
+            allSites.addAll(response);
+            if (response.size() < 10) {
+                resultListener.onResponse(allSites);
+            } else {
+                pageNumber++;
+                request(this, pageNumber);
+            }
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            errorListener.onErrorResponse(error);
+        }
+
+        private void request(Listener<List<Site>> listener, int pageNumber) {
+            ServicesRequest request = new ServicesRequest(context_,
+                    appSessionId,
+                    pageNumber,
+                    listener,
+                    errorListener);
+            requestQueue_.add(request);
+        }
+
+        public void start() {
+            request(this, 1);
+        }
     }
 }

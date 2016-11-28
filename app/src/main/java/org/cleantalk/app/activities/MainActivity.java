@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra(SiteActivity.EXTRA_REQUEST_TYPE, v.getId());
                         intent.putExtra(SiteActivity.EXTRA_SITE_NAME, site.getSiteName());
                         intent.putExtra(SiteActivity.EXTRA_SITE_ID, site.getSiteId());
+                        intent.putExtra(SiteActivity.EXTRA_AUTH_KEY, site.getAuthKey());
                         intent.putExtra(SiteActivity.EXTRA_LAST_NOTIFIED, setTodayNotified(site.getSiteId(), site.getTodayAllowed()));
                         startActivity(intent);
                     }
@@ -246,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             intent.putExtra(SiteActivity.EXTRA_REQUEST_TYPE, v.getId());
                             intent.putExtra(SiteActivity.EXTRA_SITE_NAME, site.getSiteName());
                             intent.putExtra(SiteActivity.EXTRA_SITE_ID, site.getSiteId());
+                            intent.putExtra(SiteActivity.EXTRA_AUTH_KEY, site.getAuthKey());
                             setTodayNotified(site.getSiteId(), site.getTodayAllowed());
                             startActivity(intent);
                         default:

@@ -1,5 +1,21 @@
 package org.cleantalk.app.utils;
 
+import android.content.Context;
+import android.provider.Settings.Secure;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.cleantalk.app.R;
+import org.cleantalk.app.api.ServiceApi;
+import org.cleantalk.app.model.RequestModel;
+import org.cleantalk.app.model.Site;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -19,21 +35,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.cleantalk.app.R;
-import org.cleantalk.app.api.ServiceApi;
-import org.cleantalk.app.model.Request;
-import org.cleantalk.app.model.Site;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
-import android.provider.Settings.Secure;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class Utils {
 
@@ -216,7 +217,9 @@ public class Utils {
                         obj.getJSONObject("yesterday").getInt("allow"),
                         obj.getJSONObject("yesterday").getInt("spam"),
                         obj.getJSONObject("week").getInt("allow"),
-                        obj.getJSONObject("week").getInt("spam"));
+                        obj.getJSONObject("week").getInt("spam"),
+                        obj.getString("auth_key")
+                );
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -227,8 +230,8 @@ public class Utils {
         return result;
     }
 
-    public static List<Request> parseRequests(Context context, JSONArray array, long endTo_) {
-        List<Request> result = new ArrayList<Request>();
+    public static List<RequestModel> parseRequests(Context context, JSONArray array, long endTo_) {
+        List<RequestModel> result = new ArrayList<RequestModel>();
         int len = array.length();
 
         for (int i = 0; i < len; i++) {
@@ -250,14 +253,17 @@ public class Utils {
                         continue;
                     }
                 }
-                Request request = new Request(
+                Log.d("!!!", obj.toString());
+                RequestModel request = new RequestModel(
                         obj.getString("request_id"),
                         obj.getInt("allow") == 1,
                         obj.getString("datetime"),
                         obj.getString("sender_email"),
                         obj.getString("sender_nickname"),
                         obj.getString("type"),
-                        obj.getString("message"));
+                        obj.getBoolean("show_approved"),
+                        obj.getString("message"),
+                        obj.getInt("approved"));
                 result.add(request);
 
             } catch (JSONException e) {

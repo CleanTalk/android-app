@@ -21,6 +21,13 @@
         <item name="android:textSize">10pt</item>
     </style>
 
+    <style name="SpamButtonTheme" parent="@android:style/Widget.Button">
+        <!--<item name="android:background">@drawable/button_bg</item>-->
+        <!--<item name="android:textColor">@android:color/white</item>-->
+        <!--<item name="android:textStyle">bold</item>-->
+        <item name="android:textSize">16sp</item>
+    </style>
+
     <style name="EditTextTheme" parent="@android:style/Widget.EditText">
         <item name="android:background">@drawable/edit_text_bg</item>
         <item name="android:textColor">@color/text_color</item>

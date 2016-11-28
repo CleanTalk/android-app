@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -16,6 +15,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,16 +28,19 @@ import com.android.volley.VolleyError;
 
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
-import org.cleantalk.app.model.Request;
+import org.cleantalk.app.model.RequestModel;
 import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SiteActivity extends AppCompatActivity {
 
     protected static final String EXTRA_REQUEST_TYPE = "EXTRA_REQUEST_TYPE";
+    protected static final String EXTRA_AUTH_KEY = "EXTRA_AUTH_KEY";
     protected static final String EXTRA_SITE_ID = "EXTRA_SITE_ID";
     protected static final String EXTRA_SITE_NAME = "EXTRA_SITE_NAME";
     protected static final String EXTRA_LAST_NOTIFIED = "EXTRA_LAST_NOTIFIED";
@@ -53,6 +56,16 @@ public class SiteActivity extends AppCompatActivity {
             hideProgress();
         }
     };
+
+    private final Listener<RequestModel> sendFeedbackResponseListener_ = new Listener<RequestModel>() {
+        @Override
+        public void onResponse(RequestModel request) {
+            toast_ = Utils.makeToast(SiteActivity.this, "OK!", Utils.ToastType.Info);
+            toast_.show();
+            adapter.updateItem(request);
+        }
+    };
+
     private final ErrorListener errorListener_ = new ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -66,10 +79,13 @@ public class SiteActivity extends AppCompatActivity {
             hideProgress();
         }
     };
+
     private String siteId_;
     private int requestType_;
     private long lastNotified_;
     private long endTo_ = -1;
+    private String authKey_;
+    private RequestAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +101,8 @@ public class SiteActivity extends AppCompatActivity {
         siteId_ = extras.getString(EXTRA_SITE_ID);
         lastNotified_ = extras.getLong(EXTRA_LAST_NOTIFIED, -1);
         requestType_ = extras.getInt(EXTRA_REQUEST_TYPE, -1);
+        authKey_ = extras.getString(EXTRA_AUTH_KEY);
+
         if (siteId_ == null) {
             finish();
             return;
@@ -182,9 +200,9 @@ public class SiteActivity extends AppCompatActivity {
 
     public class RequestAdapter extends BaseAdapter {
         private final Context context_;
-        private final List<Request> items_;
+        private final List<RequestModel> items_;
 
-        public RequestAdapter(Context context, List<Request> objects) {
+        public RequestAdapter(Context context, List<RequestModel> objects) {
             context_ = context;
             items_ = objects;
         }
@@ -205,7 +223,7 @@ public class SiteActivity extends AppCompatActivity {
         }
 
         @Override
-        public Request getItem(int position) {
+        public RequestModel getItem(int position) {
             return items_.get(position);
         }
 
@@ -218,7 +236,7 @@ public class SiteActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             View v = convertView;
-            ViewHolder holder; // to reference the child views for later actions
+            final ViewHolder holder; // to reference the child views for later actions
 
             if (v == null) {
                 v = LayoutInflater.from(context_).inflate(R.layout.list_row_requests, null);
@@ -229,6 +247,8 @@ public class SiteActivity extends AppCompatActivity {
                 holder.textViewType = (TextView) v.findViewById(R.id.textViewType);
                 holder.textViewStatus = (TextView) v.findViewById(R.id.textViewStatus);
                 holder.textViewMessage = (TextView) v.findViewById(R.id.textViewMessage);
+                holder.buttonSpam = (Button) v.findViewById(R.id.buttonSpam);
+                holder.textViewMarkedMessage = (TextView) v.findViewById(R.id.textViewMarkedMessage);
 
                 // associate the holder with the view for later lookup
                 v.setTag(holder);
@@ -237,7 +257,7 @@ public class SiteActivity extends AppCompatActivity {
                 holder = (ViewHolder) v.getTag();
             }
 
-            Request request = getItem(position);
+            final RequestModel request = getItem(position);
             holder.textViewTime.setText(request.getDatetime());
             if (request.getSenderEmail().equals("null")) {
                 holder.textViewSender.setText(request.getSenderNickname());
@@ -260,7 +280,42 @@ public class SiteActivity extends AppCompatActivity {
                 holder.textViewMessage.setVisibility(View.VISIBLE);
                 holder.textViewMessage.setText(Html.fromHtml(request.getMessage()));
             }
+
+            if (request.getApproved() == 1) { // 0 - spam (not approved), 1 - not spam (approved)
+                holder.buttonSpam.setText(R.string.spam);
+                holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
+            } else {
+                holder.buttonSpam.setText(R.string.not_spam);
+                holder.textViewMarkedMessage.setText(R.string.marked_as_spam);
+            }
+            holder.textViewMarkedMessage.setVisibility(request.getShowApproved() ? View.VISIBLE : View.GONE);
+            holder.buttonSpam.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    holder.buttonSpam.setEnabled(false);
+                    serviceApi_.sendFeedback(
+                            authKey_,
+                            request,
+                            sendFeedbackResponseListener_,
+                            errorListener_);
+                }
+            });
+            holder.buttonSpam.setEnabled(true);
             return v;
+        }
+
+        public void updateItem(RequestModel request) {
+            int result = Collections.binarySearch(items_, request, new Comparator<RequestModel>() {
+                @Override
+                public int compare(RequestModel requestModel, RequestModel t1) {
+                    return requestModel.getRequestId().compareTo(t1.getRequestId());
+                }
+            });
+
+            if (result >= 0) {
+                items_.set(result, request);
+                notifyDataSetChanged();
+            }
         }
 
         // somewhere else in your class definition
@@ -270,6 +325,8 @@ public class SiteActivity extends AppCompatActivity {
             TextView textViewType;
             TextView textViewStatus;
             TextView textViewMessage;
+            Button buttonSpam;
+            TextView textViewMarkedMessage;
         }
 
     }
@@ -307,8 +364,9 @@ public class SiteActivity extends AppCompatActivity {
     }
 
     private void loadRequests(JSONArray response) {
-        List<Request> requests = Utils.parseRequests(this, response, endTo_);
-        listView_.setAdapter(new RequestAdapter(this, requests));
+        List<RequestModel> requests = Utils.parseRequests(this, response, endTo_);
+        adapter = new RequestAdapter(this, requests);
+        listView_.setAdapter(adapter);
     }
 
 }
