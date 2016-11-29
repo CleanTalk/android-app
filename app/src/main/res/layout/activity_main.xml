@@ -50,8 +50,10 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fastScrollEnabled="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:fastScrollAlwaysVisible="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/header" />
 

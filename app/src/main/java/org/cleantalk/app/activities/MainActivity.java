@@ -22,6 +22,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +41,11 @@ import org.cleantalk.app.utils.Preferences;
 import org.cleantalk.app.utils.Utils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -162,14 +167,38 @@ public class MainActivity extends AppCompatActivity {
         listView_.setAdapter(new SitesAdapter(this, sites));
     }
 
-    private class SitesAdapter extends BaseAdapter {
+    private class SitesAdapter extends BaseAdapter implements SectionIndexer {
 
+        public static final int PAGE_SIZE = 10;
         private final Context context_;
         private final List<Site> items_;
+        private final int pageCount;
+        private String[] sections;
+        HashMap<String, Integer> alphaIndexer = new HashMap<>();
 
         public SitesAdapter(Context context, List<Site> objects) {
             context_ = context;
             items_ = objects;
+
+            pageCount = (items_.size() / PAGE_SIZE) + 1;
+
+            for (int i = 0; i < pageCount; i++) {
+
+                int left = (i * PAGE_SIZE);
+                int right = ((i + 1) * PAGE_SIZE);
+
+                if (left == 0) left = 1;
+                if (i == pageCount - 1) {
+                    right = items_.size();
+                }
+
+                alphaIndexer.put(String.valueOf(left) + " - " + String.valueOf(right), i * 10);
+            }
+            Set<String> sectionLetters = alphaIndexer.keySet();
+            ArrayList<String> sectionList = new ArrayList<>(sectionLetters);
+            Collections.sort(sectionList);
+            sections = new String[sectionList.size()];
+            sectionList.toArray(sections);
         }
 
         @Override
@@ -200,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
 
             final Site site = getItem(position);
             holder.imageViewLogo.setImageUrl(site.getFaviconUrl(), ServiceApi.getInstance(context_).getImageLoader());
-            holder.textViewSiteName.setText(site.getSiteName());
+            holder.textViewSiteName.setText(String.valueOf(position + 1) + ". " + site.getSiteName());
             holder.textViewTodayAllowed.setText(String.valueOf(site.getTodayAllowed()));
             holder.textViewTodayBlocked.setText(String.valueOf(site.getTodayBlocked()));
             holder.textViewWeekAllowed.setText(String.valueOf(site.getWeekAllowed()));
@@ -318,6 +347,23 @@ public class MainActivity extends AppCompatActivity {
         public boolean isEnabled(int position) {
             return false;
         }
+
+        @Override
+        public Object[] getSections() {
+            return sections;
+        }
+
+        @Override
+        public int getPositionForSection(int section) {
+            return alphaIndexer.get(sections[section]);
+        }
+
+        @Override
+        public int getSectionForPosition(int i) {
+            return 0;
+        }
+
+
     }
 
     @Override
