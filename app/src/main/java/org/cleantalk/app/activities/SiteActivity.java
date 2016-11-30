@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -49,7 +50,6 @@ public class SiteActivity extends AppCompatActivity {
 
     private ServiceApi serviceApi_;
     private ListView listView_;
-    private Toast toast_;
 
     private final Listener<JSONArray> responseListener_ = new Listener<JSONArray>() {
         @Override
@@ -73,7 +73,7 @@ public class SiteActivity extends AppCompatActivity {
                 startActivity(new Intent(SiteActivity.this, LoginActivity.class));
                 finish();
             } else if (error instanceof NetworkError) {
-                toast_ = Utils.makeToast(SiteActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
+                Toast toast_ = Utils.makeToast(SiteActivity.this, getString(R.string.connection_error), Utils.ToastType.Error);
                 toast_.show();
             }
             hideProgress();
@@ -110,9 +110,11 @@ public class SiteActivity extends AppCompatActivity {
 
         String title = extras.getString(EXTRA_SITE_NAME);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        if (title != null) {
-            actionBar.setTitle(title);
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            if (title != null) {
+                actionBar.setTitle(title);
+            }
         }
         serviceApi_ = ServiceApi.getInstance(this);
         listView_ = ((ListView) findViewById(android.R.id.list));
@@ -203,7 +205,7 @@ public class SiteActivity extends AppCompatActivity {
         private final Context context_;
         private final List<RequestModel> items_;
 
-        public RequestAdapter(Context context, List<RequestModel> objects) {
+        RequestAdapter(Context context, List<RequestModel> objects) {
             context_ = context;
             items_ = objects;
         }
@@ -240,7 +242,7 @@ public class SiteActivity extends AppCompatActivity {
             final ViewHolder holder; // to reference the child views for later actions
 
             if (v == null) {
-                v = LayoutInflater.from(context_).inflate(R.layout.list_row_requests, null);
+                v = LayoutInflater.from(context_).inflate(R.layout.list_row_requests, parent, false);
                 // cache view fields into the holder
                 holder = new ViewHolder();
                 holder.textViewTime = (TextView) v.findViewById(R.id.textViewTime);
@@ -269,10 +271,10 @@ public class SiteActivity extends AppCompatActivity {
 
             if (request.isAllow()) {
                 holder.textViewStatus.setText(R.string.status_approved);
-                holder.textViewStatus.setTextColor(getResources().getColor(R.color.allowed_count_label));
+                holder.textViewStatus.setTextColor(ContextCompat.getColor(SiteActivity.this, R.color.allowed_count_label));
             } else {
                 holder.textViewStatus.setText(R.string.status_forbidden);
-                holder.textViewStatus.setTextColor(getResources().getColor(R.color.spam_count_label));
+                holder.textViewStatus.setTextColor(ContextCompat.getColor(SiteActivity.this, R.color.spam_count_label));
             }
 
             if (request.getMessage().equals("null")) {
@@ -311,7 +313,7 @@ public class SiteActivity extends AppCompatActivity {
             return v;
         }
 
-        public void updateItem(RequestModel request) {
+        void updateItem(RequestModel request) {
             for (int i = 0; i < items_.size(); i++) {
                 if (items_.get(i).getRequestId().equals(request.getRequestId())) {
                     items_.set(i, request);
