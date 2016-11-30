@@ -150,16 +150,16 @@ public class ServiceApi {
     }
 
     public TimeZone getTimezone() {
-        String timezone = getPreferences().getString(PROPERTY_TIMEZONE, null);
-        if (timezone != null) {
-            return TimeZone.getTimeZone(timezone);
+        String timezoneId = getPreferences().getString(PROPERTY_TIMEZONE, null);
+        if (timezoneId != null) {
+            return TimeZone.getTimeZone(timezoneId);
         } else {
             return TimeZone.getDefault();
         }
     }
 
     public void setTimezone(TimeZone timezone) {
-        getPreferences().edit().putString(PROPERTY_TIMEZONE, timezone.getID()).commit();
+        getPreferences().edit().putString(PROPERTY_TIMEZONE, timezone.getID()).apply();
     }
 
     public void logout() {
@@ -189,7 +189,7 @@ public class ServiceApi {
 
         @Override
         public void onResponse(List<Site> response) {
-            allSites.addAll(response);
+            allSites.addAll(response.subList(0, Math.min(response.size(), 10)));
             if (response.size() < 10) {
                 resultListener.onResponse(allSites);
             } else {

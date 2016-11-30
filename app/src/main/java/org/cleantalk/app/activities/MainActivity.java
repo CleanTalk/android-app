@@ -257,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 holder.textViewNew.setVisibility(View.GONE);
                 holder.textViewSiteName.setOnClickListener(null);
-
             }
 
             OnClickListener onCountClickListener = new OnClickListener() {
@@ -414,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private long setTodayNotified(String siteId, int todayAllowedNotified) {
-        long time = Utils.getTimestamp(this);
+        long time = Utils.getNow(ServiceApi.getInstance(this).getTimezone());
         getPreferences(MODE_PRIVATE)
                 .edit()
                 .putInt("notified" + siteId, todayAllowedNotified)
@@ -427,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences pref = getPreferences(MODE_PRIVATE);
         int notified = pref.getInt("notified" + siteId, -1);
         long time = pref.getLong("time" + siteId, -1);
-        if ((Utils.getTimestamp(this) - time) < 86400000) {
+        if ((Utils.getNow(ServiceApi.getInstance(this).getTimezone()) - time) < 86400000) {
             return notified;
         } else {
             return 0;

@@ -36,9 +36,8 @@ import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.util.TimeZone;
 
 public class SiteActivity extends AppCompatActivity {
 
@@ -63,7 +62,6 @@ public class SiteActivity extends AppCompatActivity {
     private final Listener<RequestModel> sendFeedbackResponseListener_ = new Listener<RequestModel>() {
         @Override
         public void onResponse(RequestModel request) {
-            toast_.show();
             adapter.updateItem(request);
         }
     };
@@ -140,34 +138,35 @@ public class SiteActivity extends AppCompatActivity {
 
     private void requestData() {
         showProgress();
+        TimeZone tz = ServiceApi.getInstance(this).getTimezone();
         long startFrom = -1L;
         int allow = -1;
 
         switch (requestType_) {
             case R.id.textViewTodayAllowed:
-                startFrom = Utils.getTodayTimestamp(this);
+                startFrom = Utils.getTodayTimestamp(tz);
                 allow = 1;
                 break;
             case R.id.textViewTodayBlocked:
-                startFrom = Utils.getTodayTimestamp(this);
+                startFrom = Utils.getTodayTimestamp(tz);
                 allow = 0;
                 break;
             case R.id.textViewWeekAllowed:
-                startFrom = Utils.getWeekAgoTimestamp(this);
+                startFrom = Utils.getWeekAgoTimestamp(tz);
                 allow = 1;
                 break;
             case R.id.textViewWeekBlocked:
-                startFrom = Utils.getWeekAgoTimestamp(this);
+                startFrom = Utils.getWeekAgoTimestamp(tz);
                 allow = 0;
                 break;
             case R.id.textViewYesterdayAllowed:
-                startFrom = Utils.getYesterdayTimestamp(this);
-                endTo_ = Utils.getTodayTimestamp(this);
+                startFrom = Utils.getYesterdayTimestamp(tz);
+                endTo_ = Utils.getTodayTimestamp(tz);
                 allow = 1;
                 break;
             case R.id.textViewYesterdayBlocked:
-                startFrom = Utils.getYesterdayTimestamp(this);
-                endTo_ = Utils.getTodayTimestamp(this);
+                startFrom = Utils.getYesterdayTimestamp(tz);
+                endTo_ = Utils.getTodayTimestamp(tz);
                 allow = 0;
                 break;
             case R.id.textViewSiteName:
@@ -313,16 +312,12 @@ public class SiteActivity extends AppCompatActivity {
         }
 
         public void updateItem(RequestModel request) {
-            int result = Collections.binarySearch(items_, request, new Comparator<RequestModel>() {
-                @Override
-                public int compare(RequestModel requestModel, RequestModel t1) {
-                    return requestModel.getRequestId().compareTo(t1.getRequestId());
+            for (int i = 0; i < items_.size(); i++) {
+                if (items_.get(i).getRequestId().equals(request.getRequestId())) {
+                    items_.set(i, request);
+                    notifyDataSetChanged();
+                    break;
                 }
-            });
-
-            if (result >= 0) {
-                items_.set(result, request);
-                notifyDataSetChanged();
             }
         }
 

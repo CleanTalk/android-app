@@ -2,7 +2,6 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
-        <item name="android:buttonStyle">@style/ButtonTheme</item>
         <item name="android:editTextStyle">@style/EditTextTheme</item>
         <item name="actionBarStyle">@style/ActionBarCompat</item>
         <item name="android:actionBarStyle" tools:ignore="NewApi">@style/ActionBarCompat</item>
@@ -14,7 +13,7 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="ButtonTheme" parent="@android:style/Widget.Button">
+    <style name="LoginButtonTheme" parent="@android:style/Widget.Button">
         <item name="android:background">@drawable/button_bg</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textStyle">bold</item>
@@ -22,9 +21,6 @@
     </style>
 
     <style name="SpamButtonTheme" parent="@android:style/Widget.Button">
-        <!--<item name="android:background">@drawable/button_bg</item>-->
-        <!--<item name="android:textColor">@android:color/white</item>-->
-        <!--<item name="android:textStyle">bold</item>-->
         <item name="android:textSize">16sp</item>
     </style>
 

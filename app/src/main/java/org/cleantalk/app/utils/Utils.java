@@ -23,7 +23,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +34,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import hirondelle.date4j.DateTime;
 
 public class Utils {
 
@@ -153,45 +154,30 @@ public class Utils {
         return newArray;
     }
 
-    public static long getTimestamp(Context context) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
+    public static long getNow(TimeZone timeZone) {
+        return DateTime
+                .now(TimeZone.getTimeZone("GMT+0"))
+                .getMilliseconds(timeZone) / 1000;
     }
 
-    public static long getTodayTimestamp(Context context) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
+    public static long getTodayTimestamp(TimeZone timeZone) {
+        return DateTime
+                .today(TimeZone.getTimeZone("GMT+0"))
+                .getMilliseconds(timeZone) / 1000;
     }
 
-    public static long getYesterdayTimestamp(Context context) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        cal.add(Calendar.DAY_OF_YEAR, -1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
+    public static long getYesterdayTimestamp(TimeZone timeZone) {
+        return DateTime
+                .today(TimeZone.getTimeZone("GMT+0"))
+                .minusDays(1)
+                .getMilliseconds(timeZone) / 1000;
     }
 
-    public static long getWeekAgoTimestamp(Context context) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        cal.add(Calendar.DAY_OF_YEAR, -7);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        return (cal.getTimeInMillis() - ServiceApi.getInstance(context).getTimezone().getOffset(0)) / 1000L;
+    public static long getWeekAgoTimestamp(TimeZone timeZone) {
+        return DateTime
+                .today(TimeZone.getTimeZone("GMT+0"))
+                .minusDays(7)
+                .getMilliseconds(timeZone) / 1000;
     }
 
     public static List<Site> parseSites(JSONArray array) {
@@ -263,7 +249,7 @@ public class Utils {
                         obj.getString("type"),
                         obj.getBoolean("show_approved"),
                         obj.getString("message"),
-                        obj.getInt("approved"));
+                        obj.optInt("approved", 0));
                 result.add(request);
 
             } catch (JSONException e) {
