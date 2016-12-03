@@ -15,7 +15,7 @@ android {
         applicationId "org.cleantalk.app"
         minSdkVersion 9
         targetSdkVersion 25
-        versionCode 1
+        versionCode 3
         versionName '1.1'
     }
     buildTypes {
