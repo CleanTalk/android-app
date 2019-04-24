@@ -9,6 +9,7 @@ public class RequestModel {
     private final String type_;
     private final String message_;
     private final boolean show_approved_;
+    private final boolean in_progress_;
     private final int approved_;
 
     public RequestModel(String requestId,
@@ -18,6 +19,7 @@ public class RequestModel {
                         String senderNickname,
                         String type,
                         boolean show_approved,
+                        boolean in_progress,
                         String message,
                         int approved) {
         requestId_ = requestId;
@@ -29,6 +31,7 @@ public class RequestModel {
         show_approved_ = show_approved;
         message_ = message;
         approved_ = approved;
+        in_progress_ = in_progress;
     }
 
     public String getRequestId() {
@@ -61,6 +64,10 @@ public class RequestModel {
 
     public boolean getShowApproved() {
         return show_approved_;
+    }
+
+    public boolean isInProgress() {
+        return in_progress_;
     }
 
     public int getApproved() {

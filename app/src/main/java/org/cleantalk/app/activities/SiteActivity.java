@@ -3,33 +3,23 @@ package org.cleantalk.app.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.view.*;
+import android.widget.*;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.RequestModel;
@@ -37,6 +27,8 @@ import org.cleantalk.app.utils.Utils;
 import org.json.JSONArray;
 
 import java.lang.reflect.Field;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -286,11 +278,24 @@ public class SiteActivity extends AppCompatActivity {
 
             if (request.getApproved() == 1) { // 0 - spam (not approved), 1 - not spam (approved)
                 holder.buttonSpam.setText(R.string.spam);
-                holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
+                if (request.isInProgress()) {
+                    holder.buttonSpam.setEnabled(false);
+                    holder.textViewMarkedMessage.setText(R.string.marking_as_spam);
+                } else {
+                    holder.buttonSpam.setEnabled(true);
+                    holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
+                }
             } else {
                 holder.buttonSpam.setText(R.string.not_spam);
-                holder.textViewMarkedMessage.setText(R.string.marked_as_spam);
+                if (request.isInProgress()) {
+                    holder.buttonSpam.setEnabled(false);
+                    holder.textViewMarkedMessage.setText(R.string.marking_as_not_spam);
+                } else {
+                    holder.buttonSpam.setEnabled(true);
+                    holder.textViewMarkedMessage.setText(R.string.marked_as_spam);
+                }
             }
+
             holder.textViewMarkedMessage.setVisibility(request.getShowApproved() ? View.VISIBLE : View.GONE);
             holder.buttonSpam.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -298,6 +303,7 @@ public class SiteActivity extends AppCompatActivity {
                     showDialog(
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
+                                    addRequestInProgress(request.getRequestId(), new Date());
                                     holder.buttonSpam.setEnabled(false);
                                     serviceApi_.sendFeedback(
                                             authKey_,
@@ -309,7 +315,6 @@ public class SiteActivity extends AppCompatActivity {
                             request.getApproved() == 1 ? R.string.mark_it_as_spam : R.string.mark_it_as_not_spam);
                 }
             });
-            holder.buttonSpam.setEnabled(true);
             return v;
         }
 
@@ -334,6 +339,13 @@ public class SiteActivity extends AppCompatActivity {
             TextView textViewMarkedMessage;
         }
 
+    }
+
+    private void addRequestInProgress(String requestId, Date date) {
+        this.getSharedPreferences("general_settings", Context.MODE_PRIVATE)
+                .edit()
+                .putLong(requestId, date.getTime())
+                .apply();
     }
 
     private void showProgress() {
@@ -369,7 +381,7 @@ public class SiteActivity extends AppCompatActivity {
     }
 
     private void loadRequests(JSONArray response) {
-        List<RequestModel> requests = Utils.parseRequests(this, response, endTo_);
+        List<RequestModel> requests = Utils.parseRequests(this, response, endTo_,  this.getSharedPreferences("general_settings", Context.MODE_PRIVATE) );
         adapter = new RequestAdapter(this, requests);
         listView_.setAdapter(adapter);
     }

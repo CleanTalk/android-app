@@ -12,8 +12,16 @@ public class Site {
     private final int weekBlocked_;
     private final String authKey_;
 
-    public Site(String siteName, String siteId, String faviconUrl, int todayAllowed, int todayBlocked, int yesterdayAllowed,
-                int yesterdayBlocked, int weekAllowed, int weekBlocked, String authKey) {
+    public Site(String siteName,
+                String siteId,
+                String faviconUrl,
+                int todayAllowed,
+                int todayBlocked,
+                int yesterdayAllowed,
+                int yesterdayBlocked,
+                int weekAllowed,
+                int weekBlocked,
+                String authKey) {
         siteId_ = siteId;
         siteName_ = siteName;
         faviconUrl_ = faviconUrl;

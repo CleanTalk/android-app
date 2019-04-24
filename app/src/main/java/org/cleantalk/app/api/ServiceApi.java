@@ -141,11 +141,11 @@ public class ServiceApi {
 
     private void setAppSessionId(String appSessionId) {
         if (appSessionId == null) {
-            getPreferences().edit().remove(PROPERTY_SESSION).commit();
+            getPreferences().edit().remove(PROPERTY_SESSION).apply();
         } else {
             String initialisationVector = Utils.getDeviceId(context_);
             String eAppSessionId = Utils.AES128Encrypt(appSessionId, initialisationVector, initialisationVector);
-            getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).commit();
+            getPreferences().edit().putString(PROPERTY_SESSION, eAppSessionId).apply();
         }
     }
 

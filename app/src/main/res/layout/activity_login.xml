@@ -6,7 +6,7 @@
     android:baselineAligned="false"
     android:inAnimation="@android:anim/fade_in"
     android:outAnimation="@android:anim/fade_out"
-    tools:context=".LoginActivity" >
+    tools:context=".activities.LoginActivity" >
 
     <!-- Login form -->
 

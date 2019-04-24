@@ -1,13 +1,13 @@
 package org.cleantalk.app.utils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.provider.Settings.Secure;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import hirondelle.date4j.DateTime;
 import org.cleantalk.app.R;
 import org.cleantalk.app.api.ServiceApi;
 import org.cleantalk.app.model.RequestModel;
@@ -16,26 +16,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import hirondelle.date4j.DateTime;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Utils {
 
@@ -216,7 +209,10 @@ public class Utils {
         return result;
     }
 
-    public static List<RequestModel> parseRequests(Context context, JSONArray array, long endTo_) {
+    public static List<RequestModel> parseRequests(Context context,
+                                                   JSONArray array,
+                                                   long endTo_,
+                                                   SharedPreferences preferences) {
         List<RequestModel> result = new ArrayList<RequestModel>();
         int len = array.length();
 
@@ -239,15 +235,17 @@ public class Utils {
                         continue;
                     }
                 }
-                Log.d("!!!", obj.toString());
+
+                String requestId = obj.getString("request_id");
                 RequestModel request = new RequestModel(
-                        obj.getString("request_id"),
+                        requestId,
                         obj.getInt("allow") == 1,
                         obj.getString("datetime"),
                         obj.getString("sender_email"),
                         obj.getString("sender_nickname"),
                         obj.getString("type"),
                         obj.getBoolean("show_approved"),
+                        isInProgress(requestId, preferences),
                         obj.getString("message"),
                         obj.optInt("approved", 0));
                 result.add(request);
@@ -260,6 +258,23 @@ public class Utils {
             }
         }
         return result;
+    }
+
+    private static boolean isInProgress(String requestId, SharedPreferences preferences) {
+        if (preferences.contains(requestId)) {
+            if (isLessThan5Minutes(preferences.getLong(requestId, 0L))) {
+                return true;
+            } else {
+                preferences.edit().remove(requestId).apply();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isLessThan5Minutes(Long timestamp) {
+        Date now = new Date();
+        return ((now.getTime() - timestamp) < 60 * 1000);
     }
 
     public static Toast makeToast(Context context, String text, ToastType type) {

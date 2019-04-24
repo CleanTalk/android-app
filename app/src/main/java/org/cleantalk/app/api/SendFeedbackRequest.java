@@ -1,18 +1,10 @@
 package org.cleantalk.app.api;
 
 import android.content.Context;
-import android.util.Log;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.ParseError;
-import com.android.volley.Response;
+import com.android.volley.*;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
-
 import org.cleantalk.app.R;
 import org.cleantalk.app.model.RequestModel;
 import org.json.JSONException;
@@ -40,10 +32,9 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
         super(Method.POST, SERVICES_URI, errorListener);
         this.listener = listener;
         this.context = context;
-
-        HashMap<String, String> params = new HashMap<>(2);
-
         this.request = request;
+
+        HashMap<String, String> params = new HashMap<>(3);
         params.put("method_name", "send_feedback");
         params.put("auth_key", authKey);
         params.put("feedback", request.getRequestId()
@@ -51,12 +42,6 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
                 + (request.getApproved() == 1 ? 0 : 1));
 
         mRequestBody = (new JSONObject(params)).toString();
-        Log.d("!!!", mRequestBody);
-//        {
-//            "method_name": "send_feedback",
-//                "auth_key": "qyrasequ8usy",
-//                "feedback": "3c9f43547b3bcd2e6b1b611d4a9b9828:1"
-//        }
     }
 
     @Override
@@ -66,11 +51,6 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
             JSONObject result = new JSONObject(jsonString);
             String comment = result.getString("comment");
             if (RESULT_SUCCESS.equals(comment)) {
-//                {
-//                    "comment": "Ok.",
-//                        "received": 1
-//                }
-                Log.d("!!!", result.toString());
                 request = new RequestModel(request.getRequestId(),
                         request.isAllow(),
                         request.getDatetime(),
@@ -78,8 +58,9 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
                         request.getSenderNickname(),
                         request.getType(),
                         true,
+                        true,
                         request.getMessage(),
-                        request.getApproved() == 1 ? 0 : 1);
+                        request.getApproved());
                 return Response.success(request, HttpHeaderParser.parseCacheHeaders(response));
             } else {
                 VolleyError error = new VolleyError(context.getString(R.string.auth_error));
