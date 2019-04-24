@@ -10,11 +10,10 @@ android {
         }
     }
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "org.cleantalk.app"
         minSdkVersion 9
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 3
         versionName '1.1'
     }
@@ -29,12 +28,12 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    compile 'com.google.firebase:firebase-messaging:9.8.0'
-    compile 'com.android.volley:volley:1.0.0'
-    compile 'com.darwinsys:hirondelle-date4j:1.5.1'
+    implementation 'com.android.support:appcompat-v7:25.0.0'
+    implementation 'com.google.firebase:firebase-messaging:9.8.0'
+    implementation 'com.android.volley:volley:1.1.0'
+    implementation 'com.darwinsys:hirondelle-date4j:1.5.1'
 
-    compile 'com.jakewharton:butterknife:8.4.0'
+    implementation 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 }
 
