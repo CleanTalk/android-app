@@ -3,12 +3,10 @@ package org.cleantalk.app.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +26,6 @@ import org.json.JSONArray;
 
 import java.lang.reflect.Field;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -277,21 +274,23 @@ public class SiteActivity extends AppCompatActivity {
             }
 
             if (request.getApproved() == 1) { // 0 - spam (not approved), 1 - not spam (approved)
-                holder.buttonSpam.setText(R.string.spam);
                 if (request.isInProgress()) {
-                    holder.buttonSpam.setEnabled(false);
-                    holder.textViewMarkedMessage.setText(R.string.marking_as_spam);
+                    holder.buttonSpam.setEnabled(true);
+                    holder.buttonSpam.setText(R.string.not_spam);
+                    holder.textViewMarkedMessage.setText(R.string.marked_as_spam);
                 } else {
                     holder.buttonSpam.setEnabled(true);
+                    holder.buttonSpam.setText(R.string.spam);
                     holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
                 }
             } else {
-                holder.buttonSpam.setText(R.string.not_spam);
                 if (request.isInProgress()) {
-                    holder.buttonSpam.setEnabled(false);
-                    holder.textViewMarkedMessage.setText(R.string.marking_as_not_spam);
+                    holder.buttonSpam.setEnabled(true);
+                    holder.buttonSpam.setText(R.string.spam);
+                    holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
                 } else {
                     holder.buttonSpam.setEnabled(true);
+                    holder.buttonSpam.setText(R.string.not_spam);
                     holder.textViewMarkedMessage.setText(R.string.marked_as_spam);
                 }
             }
@@ -381,7 +380,11 @@ public class SiteActivity extends AppCompatActivity {
     }
 
     private void loadRequests(JSONArray response) {
-        List<RequestModel> requests = Utils.parseRequests(this, response, endTo_,  this.getSharedPreferences("general_settings", Context.MODE_PRIVATE) );
+        List<RequestModel> requests = Utils.parseRequests(this,
+                response,
+                endTo_,
+                this.getSharedPreferences("general_settings", Context.MODE_PRIVATE)
+        );
         adapter = new RequestAdapter(this, requests);
         listView_.setAdapter(adapter);
     }
