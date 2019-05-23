@@ -273,7 +273,7 @@ public class SiteActivity extends AppCompatActivity {
                 holder.textViewMessage.setText(Html.fromHtml(request.getMessage()));
             }
 
-            if (request.getApproved() == 1) { // 0 - spam (not approved), 1 - not spam (approved)
+            if (request.getApproved() == 1) { // 0 - spam (not approved), 1 - not spam (approved), -1 - not moderated
                 if (request.isInProgress()) {
                     holder.buttonSpam.setEnabled(true);
                     holder.buttonSpam.setText(R.string.not_spam);
@@ -283,6 +283,10 @@ public class SiteActivity extends AppCompatActivity {
                     holder.buttonSpam.setText(R.string.spam);
                     holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
                 }
+            } else if (request.getApproved() == -1) {
+                holder.buttonSpam.setEnabled(true);
+                holder.buttonSpam.setText(R.string.not_spam);
+                holder.textViewMarkedMessage.setText(null);
             } else {
                 if (request.isInProgress()) {
                     holder.buttonSpam.setEnabled(true);

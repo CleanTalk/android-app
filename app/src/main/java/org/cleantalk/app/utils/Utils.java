@@ -247,7 +247,7 @@ public class Utils {
                         obj.getBoolean("show_approved"),
                         isInProgress(requestId, preferences),
                         obj.getString("message"),
-                        obj.optInt("approved", 0));
+                        obj.optInt("approved", -1));
                 result.add(request);
 
             } catch (JSONException e) {
