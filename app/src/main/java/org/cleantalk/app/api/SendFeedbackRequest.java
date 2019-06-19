@@ -23,6 +23,7 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
     private final Context context;
     private final String mRequestBody;
     private RequestModel request;
+    private Integer approved;
 
     public SendFeedbackRequest(Context context,
                                String authKey,
@@ -37,10 +38,30 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
         HashMap<String, String> params = new HashMap<>(3);
         params.put("method_name", "send_feedback");
         params.put("auth_key", authKey);
-        params.put("feedback", request.getRequestId()
-                + ":"
-                + (request.getApproved() == 1 ? 0 : 1));
 
+
+        // 0 - spam (not approved), 1 - not spam (approved), -1 - not moderated
+        // 0 - spam (not approved), 1 - not spam (approved), -1 - not moderated
+        if (request.getApproved() == 1) {
+            if (request.isInProgress()) {
+                approved = 1;
+            } else {
+                approved = 0;
+            }
+        } else if (request.getApproved() == 0) {
+            if (request.isInProgress()) {
+                approved = 0;
+            } else {
+                approved = 1;
+            }
+        } else {
+            if (request.isAllow()) {
+                approved = 0;
+            } else {
+                approved = 1;
+            }
+        }
+        params.put("feedback", request.getRequestId() + ":" + approved);
         mRequestBody = (new JSONObject(params)).toString();
     }
 
@@ -60,7 +81,7 @@ class SendFeedbackRequest extends com.android.volley.Request<RequestModel> {
                         true,
                         true,
                         request.getMessage(),
-                        request.getApproved());
+                        approved == 1 ? 0 : 1);
                 return Response.success(request, HttpHeaderParser.parseCacheHeaders(response));
             } else {
                 VolleyError error = new VolleyError(context.getString(R.string.auth_error));

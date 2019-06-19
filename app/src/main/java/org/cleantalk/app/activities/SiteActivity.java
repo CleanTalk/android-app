@@ -250,6 +250,7 @@ public class SiteActivity extends AppCompatActivity {
             }
 
             final RequestModel request = getItem(position);
+
             holder.textViewTime.setText(request.getDatetime());
             if (request.getSenderEmail().equals("null")) {
                 holder.textViewSender.setText(request.getSenderNickname());
@@ -283,11 +284,7 @@ public class SiteActivity extends AppCompatActivity {
                     holder.buttonSpam.setText(R.string.spam);
                     holder.textViewMarkedMessage.setText(R.string.marked_as_not_spam);
                 }
-            } else if (request.getApproved() == -1) {
-                holder.buttonSpam.setEnabled(true);
-                holder.buttonSpam.setText(R.string.not_spam);
-                holder.textViewMarkedMessage.setText(null);
-            } else {
+            } else if (request.getApproved() == 0) {
                 if (request.isInProgress()) {
                     holder.buttonSpam.setEnabled(true);
                     holder.buttonSpam.setText(R.string.spam);
@@ -297,17 +294,44 @@ public class SiteActivity extends AppCompatActivity {
                     holder.buttonSpam.setText(R.string.not_spam);
                     holder.textViewMarkedMessage.setText(R.string.marked_as_spam);
                 }
+            } else {
+                holder.buttonSpam.setEnabled(true);
+                if (request.isAllow()) {
+                    holder.buttonSpam.setText(R.string.spam);
+                } else {
+                    holder.buttonSpam.setText(R.string.not_spam);
+                }
+                holder.textViewMarkedMessage.setText(null);
             }
 
             holder.textViewMarkedMessage.setVisibility(request.getShowApproved() ? View.VISIBLE : View.GONE);
             holder.buttonSpam.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+
+                    int titleResId;
+                    if (request.getApproved() == 1 && request.isInProgress()) {
+                        titleResId = R.string.mark_it_as_not_spam;
+                    } else if (request.getApproved() == 0 && request.isInProgress()) {
+                        titleResId = R.string.mark_it_as_spam;
+                    } else if (request.getApproved() == 1) {
+                        titleResId = R.string.mark_it_as_spam;
+                    } else if (request.getApproved() == 0) {
+                        titleResId = R.string.mark_it_as_not_spam;
+                    } else {
+                        if (request.isAllow()) {
+                            titleResId = R.string.mark_it_as_spam;
+                        } else {
+                            titleResId = R.string.mark_it_as_not_spam;
+                        }
+                    }
+
                     showDialog(
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     addRequestInProgress(request.getRequestId(), new Date());
                                     holder.buttonSpam.setEnabled(false);
+
                                     serviceApi_.sendFeedback(
                                             authKey_,
                                             request,
@@ -315,7 +339,7 @@ public class SiteActivity extends AppCompatActivity {
                                             errorListener_);
                                 }
                             },
-                            request.getApproved() == 1 ? R.string.mark_it_as_spam : R.string.mark_it_as_not_spam);
+                            titleResId);
                 }
             });
             return v;
